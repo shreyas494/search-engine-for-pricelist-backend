@@ -1,0 +1,38 @@
+[
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 825 12V DG",
+    "dealer_price": 4460,
+    "mrp": 6890
+  },
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 1025 12V DG",
+    "dealer_price": 5044,
+    "mrp": 9490
+  },
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 1225 12V DG",
+    "dealer_price": 5702,
+    "mrp": 10490
+  },
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 825 12V SW",
+    "dealer_price": 4899,
+    "mrp": 8590
+  },
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 1025 12V SW",
+    "dealer_price": 5629,
+    "mrp": 10690
+  },
+  {
+    "brand": "MICROTEK 12V INVERTER",
+    "model": "ENERGY SAVER NEW 1225 12V SW",
+    "dealer_price": 6437,
+    "mrp": 10890
+  }
+]

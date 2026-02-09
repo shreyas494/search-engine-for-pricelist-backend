@@ -1,0 +1,37 @@
+[
+  {
+    "brand": "leo silver batteries",
+    "model": "2.5LB - 24 MONTH",
+    "type": "BATTERY",
+    "dp": 625,
+    "mrp": 950
+  },
+  {
+    "brand": "leo silver batteries",
+    "model": "4LB - 18 MONTH",
+    "type": "BATTERY",
+    "dp": 721,
+    "mrp": 1125
+  },
+  {
+    "brand": "leo silver batteries",
+    "model": "TZ5L - 18 MONTH",
+    "type": "BATTERY",
+    "dp": 930,
+    "mrp": 1395
+  },
+  {
+    "brand": "leo silver batteries",
+    "model": "5LB - 18 MONTH",
+    "type": "BATTERY",
+    "dp": 930,
+    "mrp": 1500
+  },
+  {
+    "brand": "leo silver batteries",
+    "model": "TZ9 - 18 MONTH",
+    "type": "BATTERY",
+    "dp": 1470,
+    "mrp": 1982
+  }
+]

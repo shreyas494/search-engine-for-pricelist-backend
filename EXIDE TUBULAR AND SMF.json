@@ -1,0 +1,21 @@
+[
+  {"brand": "Exide tubular and smf batteries", "model": "SOLATUBULAR LMS75 12V", "ah": 75, "dp": 8415, "mrp": 10610, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SOLATUBULAR LMS100 12V", "ah": 100, "dp": 9515, "mrp": 12650, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SOLARBLITZ SBZ 150 12V", "ah": 150, "dp": 11550, "mrp": 18500, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SOLATUBULAR LMS150 12V", "ah": 150, "dp": 12650, "mrp": 18200, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SOLATUBULAR LMS200 12V", "ah": 200, "dp": 17160, "mrp": 23660, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "TUBULAR EL150L", "ah": 150, "dp": 11770, "mrp": 18000, "warranty": "36 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "TUBULAR EL150 TT", "ah": 150, "dp": 14685, "mrp": 22168, "warranty": "48 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "TUBULAR EL200 TT", "ah": 200, "dp": 17710, "mrp": 29055, "warranty": "48 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF CHLORIDE CS 7-12", "ah": 7, "dp": 863.50, "mrp": 1280.00, "warranty": "6 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP 12-12", "ah": 12, "dp": 1760.00, "mrp": 2500.00, "warranty": "12 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP18-12", "ah": 18, "dp": 2365.00, "mrp": 3070.00, "warranty": "12 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP 26-12", "ah": 26, "dp": 3135.00, "mrp": 4350.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP 42-12", "ah": 42, "dp": 4400.00, "mrp": 6225.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP 65-12", "ah": 65, "dp": 6380.00, "mrp": 8905.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE EP 75-12", "ah": 75, "dp": 7590.00, "mrp": 9775.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE 100-12", "ah": 100, "dp": 9625.00, "mrp": 13300.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE 120-12", "ah": 120, "dp": 11660.00, "mrp": 15730.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE 150-12", "ah": 150, "dp": 14630.00, "mrp": 19925.00, "warranty": "24 MONTHS"},
+  {"brand": "Exide tubular and smf batteries", "model": "SMF POWERSAFE 200-12", "ah": 200, "dp": 20075.00, "mrp": 24625.00, "warranty": "24 MONTHS"}
+]

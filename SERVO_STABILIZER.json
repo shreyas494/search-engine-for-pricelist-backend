@@ -1,0 +1,9 @@
+[
+  { "brand": "SERVO STABILIZER", "model": "1KVA", "dp": 7480, "mrp": 10097 },
+  { "brand": "SERVO STABILIZER", "model": "2KVA", "dp": 8323, "mrp": 11235 },
+  { "brand": "SERVO STABILIZER", "model": "3KVA", "dp": 8894, "mrp": 12007 },
+  { "brand": "SERVO STABILIZER", "model": "5KVA", "dp": 13672, "mrp": 18458 },
+  { "brand": "SERVO STABILIZER", "model": "7.5KVA", "dp": 19701, "mrp": 26596 },
+  { "brand": "SERVO STABILIZER", "model": "10KVA", "dp": 20659, "mrp": 27889 },
+  { "brand": "SERVO STABILIZER", "model": "15KVA", "dp": 37111, "mrp": 50099 }
+]

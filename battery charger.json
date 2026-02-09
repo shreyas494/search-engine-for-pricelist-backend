@@ -1,0 +1,164 @@
+[
+  {
+    "brand": "Battery charger",
+    "model": "1 BATTERY -5 AMP(12V-5A) - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "1B5",
+    "rp": 2214,
+    "rp1": 2258,
+    "mrp": 2822
+  },
+  {
+    "brand": "Battery charger",
+    "model": "1 BATTERY - 10 AMP(12V-10A) - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "1B10",
+    "rp": 3254,
+    "rp1": 3320,
+    "mrp": 4149
+  },
+  {
+    "brand": "Battery charger",
+    "model": "2 BATTERY -10 AMP(24V-10A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "2B10",
+    "rp": 6278,
+    "rp1": 6403,
+    "mrp": 8004
+  },
+  {
+    "brand": "Battery charger",
+    "model": "2 BATTERY -16 AMP(24V-16A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "2B16",
+    "rp": 9813,
+    "rp1": 10009,
+    "mrp": 12511
+  },
+  {
+    "brand": "Battery charger",
+    "model": "4 BATTERY -10 AMP(48V-10A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "4B10",
+    "rp": 9582,
+    "rp1": 9773,
+    "mrp": 12217
+  },
+  {
+    "brand": "Battery charger",
+    "model": "6 BATTERY -10 AMP(72V-10 A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "6B10",
+    "rp": 13315,
+    "rp1": 13581,
+    "mrp": 16977
+  },
+  {
+    "brand": "Battery charger",
+    "model": "8 BATTERY -10 AMP(96V-10A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "8B10",
+    "rp": 15958,
+    "rp1": 16277,
+    "mrp": 20347
+  },
+  {
+    "brand": "Battery charger",
+    "model": "8 BATTERY -16 AMP(96V-16A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "8B16",
+    "rp": 19494,
+    "rp1": 19883,
+    "mrp": 24854
+  },
+  {
+    "brand": "Battery charger",
+    "model": "1 CHANNEL MOTORCYCLE AUTOMATIC - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "1MCH",
+    "rp": 2263,
+    "rp1": 2309,
+    "mrp": 2886
+  },
+  {
+    "brand": "Battery charger",
+    "model": "2 CHANNEL MOTORCYCLE AUTOMATIC - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "2MCH",
+    "rp": 4262,
+    "rp1": 4347,
+    "mrp": 5434
+  },
+  {
+    "brand": "Battery charger",
+    "model": "5 CHANNEL MOTORCYCLE AUTOMATIC - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "5MCH",
+    "rp": 9449,
+    "rp1": 9638,
+    "mrp": 12048
+  },
+  {
+    "brand": "Battery charger",
+    "model": "6 BATTERY -2 AMP M/C (72V-2A) - 18 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "6B2",
+    "rp": 6311,
+    "rp1": 6437,
+    "mrp": 8046
+  },
+  {
+    "brand": "Battery charger",
+    "model": "12V-10 AMP SMPS BATTERY CHARGER - 6 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "NHP1210",
+    "rp": 2676,
+    "rp1": 2730,
+    "mrp": 3412
+  },
+  {
+    "brand": "Battery charger",
+    "model": "24V-10 AMP SMPS BATTERY CHARGER - 6 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "NHP2410",
+    "rp": 4064,
+    "rp1": 4145,
+    "mrp": 5181
+  },
+  {
+    "brand": "Battery charger",
+    "model": "12V-24V DIGITAL VOLTMETER - 3 MONTH",
+    "type": "BATTERY CHARGER",
+    "code": "BVM",
+    "rp": 826,
+    "rp1": 843,
+    "mrp": 1053
+  },
+  {
+    "brand": "Battery charger",
+    "model": "PORTABLE BATTERY LOAD TESTER - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "SBT",
+    "rp": 4196,
+    "rp1": 4280,
+    "mrp": 5350
+  },
+  {
+    "brand": "Battery charger",
+    "model": "15 ACR. SOLAR FENCE CHARGER - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "FEN15",
+    "rp": 5352,
+    "rp1": 5460,
+    "mrp": 6824
+  },
+  {
+    "brand": "Battery charger",
+    "model": "25 ACR. SOLAR FENCE CHARGER - 1 YEAR",
+    "type": "BATTERY CHARGER",
+    "code": "FEN25",
+    "rp": 5980,
+    "rp1": 6100,
+    "mrp": 7625
+  }
+]

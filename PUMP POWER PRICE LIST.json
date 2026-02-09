@@ -1,0 +1,51 @@
+[
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "PUMP POWER 12V/14AH",
+    "dealer_price": 1150,
+    "mrp": 1705,
+    "warranty": "6 MONTHS"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "PUMP POWER 12V/8AH",
+    "dealer_price": 685,
+    "mrp": 1022,
+    "warranty": "6 MONTHS"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "PUMP POWER 6V/5AH",
+    "dealer_price": 230,
+    "mrp": 326,
+    "warranty": "6 MONTHS"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "PUMP POWER 4V/5AH",
+    "dealer_price": 210,
+    "mrp": 294,
+    "warranty": "6 MONTHS"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "MOTO POWER 4LB",
+    "dealer_price": 570,
+    "mrp": 853,
+    "warranty": "1 YEAR"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "MOTO POWER 3LC",
+    "dealer_price": 350,
+    "mrp": 525,
+    "warranty": "1 YEAR"
+  },
+  {
+    "brand": "PUMP POWER PRICE LIST",
+    "model": "MOTO POWER 5LB",
+    "dealer_price": 720,
+    "mrp": 1080,
+    "warranty": "1 YEAR"
+  }
+]

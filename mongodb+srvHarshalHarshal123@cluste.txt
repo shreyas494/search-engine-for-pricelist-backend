@@ -1,0 +1,16 @@
+mongodb+srv://Harshal:Harshal123@cluster0.qvgyeqg.mongodb.net/tyreDB
+
+
+
+git config --global user.name "shreyas494"
+git config --global user.email "shreyakulkarni850@gmail.com"
+
+git remote add origin https://github.com/shreyas494/search-engine-for-pricelist.git
+git remote set-url origin https://github.com/shreyas494/search-engine-for-pricelist.git
+
+
+
+
+
+
+

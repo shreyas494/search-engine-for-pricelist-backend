@@ -1,0 +1,38 @@
+[
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 1550 12V DG",
+    "dealer_price": 6722,
+    "mrp": 10690
+  },
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 1750 12V DG",
+    "dealer_price": 8499,
+    "mrp": 14690
+  },
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 2350 24V DG",
+    "dealer_price": 9653,
+    "mrp": 17190
+  },
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 1550 12V SW",
+    "dealer_price": 7680,
+    "mrp": 12090
+  },
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 1750 12V SW",
+    "dealer_price": 9307,
+    "mrp": 15190
+  },
+  {
+    "brand": "MICROTEK HEAVY DUTY UPS",
+    "model": "HEAVY DUTY V TURBO UPS 2350 24V SW",
+    "dealer_price": 10750,
+    "mrp": 19190
+  }
+]

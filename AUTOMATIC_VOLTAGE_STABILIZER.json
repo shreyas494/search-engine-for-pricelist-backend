@@ -1,0 +1,28 @@
+[
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "2KVA (170-270V)", "type": "STABILIZER", "dp": 6316, "mrp": 8842 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "3KVA (170-270V)", "type": "STABILIZER", "dp": 7062, "mrp": 9887 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "5KVA (170-270V)", "type": "STABILIZER", "dp": 8165, "mrp": 11430 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "6KVA (170-270V)", "type": "STABILIZER", "dp": 9657, "mrp": 13520 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "7.5KVA (170-270V)", "type": "STABILIZER", "dp": 16248, "mrp": 22748 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "8.5KVA (170-270V)", "type": "STABILIZER", "dp": 17741, "mrp": 24837 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "10KVA (170-270V)", "type": "STABILIZER", "dp": 20841, "mrp": 29178 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "15KVA (170-270V)", "type": "STABILIZER", "dp": 22794, "mrp": 31912 },
+
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "2KVA (130-270V)", "type": "STABILIZER", "dp": 9359, "mrp": 13102 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "3KVA (130-270V)", "type": "STABILIZER", "dp": 10851, "mrp": 15192 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "5KVA (130-270V)", "type": "STABILIZER", "dp": 12402, "mrp": 17362 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "6KVA (130-270V)", "type": "STABILIZER", "dp": 14193, "mrp": 19870 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "7.5KVA (130-270V)", "type": "STABILIZER", "dp": 19349, "mrp": 27088 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "8.5KVA (130-270V)", "type": "STABILIZER", "dp": 20841, "mrp": 29178 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "10KVA (130-270V)", "type": "STABILIZER", "dp": 24688, "mrp": 34563 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "15KVA (130-270V)", "type": "STABILIZER", "dp": 32612, "mrp": 45656 },
+
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "2KVA (90-270V)", "type": "STABILIZER", "dp": 13148, "mrp": 18407 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "3KVA (90-270V)", "type": "STABILIZER", "dp": 14641, "mrp": 20497 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "5KVA (90-270V)", "type": "STABILIZER", "dp": 17684, "mrp": 24757 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "6KVA (90-270V)", "type": "STABILIZER", "dp": 19176, "mrp": 26847 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "7.5KVA (90-270V)", "type": "STABILIZER", "dp": 24688, "mrp": 34563 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "8.5KVA (90-270V)", "type": "STABILIZER", "dp": 26181, "mrp": 36653 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "10KVA (90-270V)", "type": "STABILIZER", "dp": 27789, "mrp": 38904 },
+  { "brand": "AUTOMATIC_VOLTAGE_STABILIZER", "model": "15KVA (90-270V)", "type": "STABILIZER", "dp": 37205, "mrp": 52087 }
+]
