@@ -20,6 +20,9 @@ app.use(compression());
 app.use(express.json());
 
 // ✅ MongoDB Connection
+if (process.env.MONGO_URI && (process.env.MONGO_URI.includes("<") || process.env.MONGO_URI.includes(">"))) {
+  console.error("🚨 CONFIGURATION ERROR: Your MONGO_URI contains '<' or '>'. Did you forget to remove the '<db_password>' placeholder and type your actual password?");
+}
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
