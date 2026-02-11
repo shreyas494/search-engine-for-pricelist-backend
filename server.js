@@ -29,22 +29,7 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ DB Connection Error:", err));
 
-// ✅ Tyre Schema
-const TyreSchema = new mongoose.Schema(
-  {
-    brand: { type: String, index: true },
-    model: { type: String, index: true }, // Simple index for better performance
-    type: String,
-    dp: Number,
-    mrp: Number,
-  },
-  { collection: "tyres" }
-);
-
-// Compound index for searching by brand + model
-TyreSchema.index({ brand: 1, model: 1 });
-
-const Tyre = mongoose.model("Tyre", TyreSchema);
+import Tyre from "./models/Tyre.js";
 
 // ✅ Get tyres with optional filters
 app.get("/api/tyres", async (req, res) => {

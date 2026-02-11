@@ -9,8 +9,7 @@ import mongoose from "mongoose";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Helper to get Tyre model
-const Tyre = mongoose.model("Tyre");
+import Tyre from "../models/Tyre.js";
 
 // ✅ Parse PDF and return JSON (Admin review step)
 router.post("/parse-pdf", upload.single("file"), async (req, res) => {
