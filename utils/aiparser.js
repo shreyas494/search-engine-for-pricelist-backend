@@ -4,10 +4,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 export const parsePDFText = async (text) => {
     try {
+        const key = process.env.GEMINI_API_KEY;
+        console.log(`🤖 AI Debug: Key found? ${!!key} (Length: ${key?.length || 0})`);
+        if (key) console.log(`🤖 AI Debug: Key prefix: ${key.substring(0, 4)}...`);
+
+        const genAI = new GoogleGenerativeAI(key);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
