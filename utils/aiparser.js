@@ -117,10 +117,54 @@ export const parsePDFText = async (text) => {
             return JSON.parse(cleanedResponse);
         } catch (parseError) {
             console.error("❌ JSON Parse Error:", parseError);
-            throw new Error(`Failed to parse AI response from ${successfulModel}`);
+            // Fallback to basic parser if JSON is mangled
+            return basicHeuristicParser(text);
         }
     } catch (error) {
         console.error("❌ AI Parsing Error:", error);
-        throw new Error(error.message || "Failed to parse PDF data with AI");
+        // CRITICAL FALLBACK: If AI fails entirely, use basic heuristic parser
+        console.log("🛠️ Attempting Basic Heuristic Parser Fallback...");
+        return basicHeuristicParser(text);
     }
+};
+
+/**
+ * Basic Heuristic Parser (Non-AI Fallback)
+ * Tries to find lines that look like: Brand Model Type DP MRP
+ */
+export const basicHeuristicParser = (text) => {
+    const lines = text.split("\n");
+    const results = [];
+
+    // Heuristic: Many pricelists have: BRAND [SPACE] MODEL [SPACE] ... [SPACE] DP [SPACE] MRP
+    // We look for lines containing at least two valid numbers >= 100
+    for (let line of lines) {
+        line = line.trim();
+        if (line.length < 10) continue;
+
+        // Extract numbers
+        const numbers = line.match(/\d+[,.]?\d*/g);
+        if (!numbers || numbers.length < 2) continue;
+
+        // Heuristic: The last two numbers are likely DP and MRP
+        const mrp = parseFloat(numbers[numbers.length - 1].replace(/,/g, ""));
+        const dp = parseFloat(numbers[numbers.length - 2].replace(/,/g, ""));
+
+        if (dp < 100 || mrp < 100) continue; // Skip non-price numbers
+
+        // Heuristic: The text before the numbers is Brand/Model/Type
+        const textPart = line.replace(/\d+[,.]?\d*/g, "").trim();
+        const parts = textPart.split(/\s+/);
+
+        results.push({
+            brand: parts[0] || "Unknown",
+            model: parts.slice(1, -1).join(" ") || parts[1] || "Generic Model",
+            type: parts[parts.length - 1] || "Tubeless",
+            dp: dp,
+            mrp: mrp
+        });
+    }
+
+    console.log(`🛠️ Basic Heuristic Parser: Extracted ${results.length} items.`);
+    return results;
 };
