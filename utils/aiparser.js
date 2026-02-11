@@ -14,10 +14,6 @@ export const parsePDFText = async (text) => {
         }
 
         const genAI = new GoogleGenerativeAI(key);
-        // Use gemini-2.0-flash which is the standard in 2026
-        const modelName = "gemini-2.0-flash";
-        console.log(`🤖 AI Debug: Using model: ${modelName}`);
-        const model = genAI.getGenerativeModel({ model: modelName });
 
         const prompt = `
       You are an expert data extractor.
@@ -38,18 +34,47 @@ export const parsePDFText = async (text) => {
       ${text.slice(0, 30000)} // Truncate to avoid token limits if necessary
     `;
 
-        console.log("🤖 AI Debug: Generating content...");
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let textResponse = response.text();
+        // Try multiple models in case of 404 or Quota issues
+        const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro", "gemini-2.0-flash"];
+        let response;
+        let lastError;
+        let successfulModel = "";
 
-        console.log("🤖 AI Debug: Raw response received:", textResponse.substring(0, 500) + (textResponse.length > 500 ? "..." : ""));
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`🤖 AI Debug: Attempting to generate content with model: ${modelName}`);
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                response = await result.response;
+                successfulModel = modelName;
+                console.log(`✅ AI Debug: Success with model ${modelName}`);
+                break; // Found one that works!
+            } catch (err) {
+                console.warn(`⚠️ AI Debug: Model ${modelName} failed: ${err.message}`);
+                lastError = err;
+                // Continue to next model if it's a 404 or 429
+                if (err.message.includes("404") || err.message.includes("429")) {
+                    continue;
+                } else {
+                    // For other errors, we might still want to try another model
+                    continue;
+                }
+            }
+        }
+
+        if (!response) {
+            console.error("❌ AI Debug: All fallback models failed.");
+            throw lastError || new Error("All Gemini models failed due to quota or availability.");
+        }
+
+        let textResponse = response.text();
+        console.log(`🤖 AI Debug: Raw response received from ${successfulModel}:`, textResponse.substring(0, 500) + (textResponse.length > 500 ? "..." : ""));
 
         // More robust JSON extraction
         let jsonMatch = textResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);
         let cleanedResponse = jsonMatch ? jsonMatch[0] : textResponse;
 
-        // Fallback: Clean up markdown if present manually if regex didn't work perfectly
+        // Fallback: Clean up markdown if present manually
         if (!jsonMatch) {
             cleanedResponse = cleanedResponse.replace(/```json/g, "").replace(/```/g, "").trim();
         }
@@ -59,7 +84,7 @@ export const parsePDFText = async (text) => {
         } catch (parseError) {
             console.error("❌ JSON Parse Error:", parseError);
             console.error("📄 Cleaned Response that failed to parse:", cleanedResponse);
-            throw new Error("Failed to parse AI response as JSON");
+            throw new Error(`Failed to parse AI response as JSON from model ${successfulModel}`);
         }
     } catch (error) {
         console.error("❌ AI Parsing Error:", error);
