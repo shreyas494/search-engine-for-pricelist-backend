@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import pdf from "pdf-parse/lib/pdf-parse.js";
+import pdf from "pdf-parse";
 import { parsePDFText } from "../utils/aiparser.js";
 import mongoose from "mongoose";
 
@@ -18,16 +18,22 @@ router.post("/parse-pdf", upload.single("file"), async (req, res) => {
         }
 
         // 1. Extract Text from PDF
+        console.log("📄 Received PDF for parsing:", req.file.originalname);
         const dataBuffer = req.file.buffer;
+
+        console.log("⚙️ Starting PDF text extraction...");
         const pdfData = await pdf(dataBuffer);
         const text = pdfData.text;
+        console.log(`✅ Text extraction complete (${text.length} characters)`);
 
         // 2. Send to AI for extraction
+        console.log("🤖 Sending text to Gemini AI...");
         const extractedData = await parsePDFText(text);
+        console.log(`✅ AI extraction successful: found ${extractedData?.length} items`);
 
         res.json(extractedData);
     } catch (error) {
-        console.error("Parse Error:", error);
+        console.error("❌ Parse Error:", error);
         res.status(500).json({ error: error.message });
     }
 });
