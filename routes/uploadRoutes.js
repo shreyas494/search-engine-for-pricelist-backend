@@ -42,9 +42,9 @@ router.post("/parse-pdf", upload.single("file"), async (req, res) => {
         // 2. Send to AI for extraction
         console.log("🤖 Sending text to Gemini AI...");
         const extractedData = await parsePDFText(text);
-        console.log(`✅ AI extraction successful: found ${extractedData?.length} items`);
+        console.log(`✅ Extraction complete: found ${extractedData?.length} items`);
 
-        res.json(extractedData);
+        res.json({ extractedData, rawText: text });
     } catch (error) {
         console.error("❌ Parse Route Error:", error);
         res.status(500).json({ error: error.message || "An unexpected error occurred during parsing." });
