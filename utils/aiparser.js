@@ -14,8 +14,8 @@ export const parsePDFText = async (text) => {
         }
 
         const genAI = new GoogleGenerativeAI(key);
-        // Use gemini-1.5-flash-latest which is more robust
-        const modelName = "gemini-1.5-flash-latest";
+        // Use gemini-2.0-flash which is the standard in 2026
+        const modelName = "gemini-2.0-flash";
         console.log(`🤖 AI Debug: Using model: ${modelName}`);
         const model = genAI.getGenerativeModel({ model: modelName });
 
