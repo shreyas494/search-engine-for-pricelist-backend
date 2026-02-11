@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import compression from "compression";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 dotenv.config();
 
@@ -70,6 +71,9 @@ app.get("/api/brands", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ✅ Admin Upload Routes
+app.use("/api/admin", uploadRoutes);
 
 // ✅ Root Endpoint
 app.get("/", (req, res) => {
