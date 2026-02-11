@@ -3,128 +3,77 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Initialize Gemini using direct fetch for stable v1/v1beta support
-export const parsePDFText = async (text) => {
+export const parsePDFText = async (text, pdfBuffer = null) => {
     try {
         const key = process.env.GEMINI_API_KEY;
-        console.log(`🤖 AI Debug: Key found? ${!!key} (Length: ${key?.length || 0})`);
-
-        if (!key) {
-            throw new Error("GEMINI_API_KEY is not defined in environment variables");
-        }
-
-        // --- MODEL DISCOVERY (Debug Only) ---
-        try {
-            console.log("🔍 AI Debug: Listing available models for this key...");
-            const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
-            const listRes = await fetch(listUrl);
-            const listData = await listRes.json();
-            if (listData.models) {
-                const modelNames = listData.models.map(m => m.name.split('/').pop());
-                console.log("📋 AI Debug: Available Models:", modelNames.join(", "));
-            } else {
-                console.log("⚠️ AI Debug: Could not list models:", listData.error?.message || "Unknown error");
-            }
-        } catch (discoveryErr) {
-            console.warn("⚠️ AI Debug: Model discovery failed:", discoveryErr.message);
-        }
-        // -------------------------------------
+        if (!key) throw new Error("GEMINI_API_KEY is missing");
 
         const prompt = `
-      You are an expert data extractor.
-      Extract the tyre pricelist data from the following text into a JSON array.
-      The text may contain headers, footers, and varying formats.
-      Focus on extracting:
-      - brand (if explicit, otherwise infer from context e.g. "MRF", "CEAT")
-      - model (pattern name)
-      - type (e.g., "Tubeless", "Tube Type", "Radial", "Bias")
-      - dp (Dealer Price, numeric)
-      - mrp (Maximum Retail Price, numeric)
+            Extract ALL pricelist items from the provided data.
+            Required fields: brand, model, type, dp (numeric), mrp (numeric).
+            If a value is missing, infer it from context or leave as null.
+            Return ONLY a valid JSON array of objects.
+        `;
 
-      Return ONLY the JSON array. Do not include markdown formatting like \`\`\`json.
-      Ensure the output is valid JSON.
-
-      Text Data:
-      ${text.slice(0, 30000)}
-    `;
-
-        // Comprehensive list for 2026 availability
         const modelsToTry = [
             "gemini-1.5-flash",
-            "gemini-1.5-flash-002",
-            "gemini-1.5-flash-latest",
+            "gemini-2.0-flash",
             "gemini-1.5-flash-8b",
-            "gemini-2.0-flash-lite",
-            "gemini-2.0-flash"
+            "gemini-1.5-pro"
         ];
 
         let textResponse = "";
         let successfulModel = "";
-        let lastError;
 
-        // Try both v1beta and v1
-        for (const apiVersion of ["v1beta", "v1"]) {
-            if (textResponse) break;
+        // Attempt OCR with buffer if available, otherwise fallback to text
+        for (const modelName of modelsToTry) {
+            try {
+                const apiVersion = modelName.includes("2.0") ? "v1beta" : "v1";
+                const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${key}`;
 
-            for (const modelName of modelsToTry) {
-                try {
-                    console.log(`🤖 AI Debug: Attempting model ${modelName} on ${apiVersion} endpoint...`);
-                    const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${key}`;
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            pdfBuffer
+                                ? { inline_data: { mime_type: "application/pdf", data: pdfBuffer.toString("base64") } }
+                                : { text: `Data: ${text.slice(0, 30000)}` }
+                        ]
+                    }]
+                };
 
-                    const res = await fetch(url, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    });
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
 
-                    const data = await res.json();
-
-                    if (!res.ok) {
-                        const errMsg = data.error?.message || res.statusText;
-                        console.warn(`⚠️ AI Debug: Model ${modelName} on ${apiVersion} failed (${res.status}): ${errMsg}`);
-                        lastError = new Error(errMsg);
-                        continue;
-                    }
-
+                const data = await res.json();
+                if (res.ok) {
                     textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (textResponse) {
                         successfulModel = modelName;
-                        console.log(`✅ AI Debug: Success with model ${modelName} on ${apiVersion}`);
                         break;
                     }
-                } catch (err) {
-                    console.warn(`⚠️ AI Debug: Fetch error for ${modelName} on ${apiVersion}: ${err.message}`);
-                    lastError = err;
-                    continue;
+                } else {
+                    console.warn(`⚠️ Gemini ${modelName} fail:`, data.error?.message);
                 }
+            } catch (err) {
+                console.warn(`⚠️ AI Fetch error:`, err.message);
             }
         }
 
         if (!textResponse) {
-            console.error("❌ AI Debug: All models and endpoints failed.");
-            throw lastError || new Error("Failed to communicate with Gemini API. Check your quota or API key.");
+            console.log("🛠️ AI Failed. Triggering Heuristic Fallback.");
+            return basicHeuristicParser(text || "");
         }
 
-        console.log(`🤖 AI Debug: Raw response received from ${successfulModel}:`, textResponse.substring(0, 500) + (textResponse.length > 500 ? "..." : ""));
+        const jsonMatch = textResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        return JSON.parse(jsonMatch ? jsonMatch[0] : textResponse);
 
-        // JSON Extraction
-        let jsonMatch = textResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);
-        let cleanedResponse = jsonMatch ? jsonMatch[0] : textResponse;
-        if (!jsonMatch) cleanedResponse = cleanedResponse.replace(/```json/g, "").replace(/```/g, "").trim();
-
-        try {
-            return JSON.parse(cleanedResponse);
-        } catch (parseError) {
-            console.error("❌ JSON Parse Error:", parseError);
-            // Fallback to basic parser if JSON is mangled
-            return basicHeuristicParser(text);
-        }
     } catch (error) {
-        console.error("❌ AI Parsing Error:", error);
-        // CRITICAL FALLBACK: If AI fails entirely, use basic heuristic parser
-        console.log("🛠️ Attempting Basic Heuristic Parser Fallback...");
-        return basicHeuristicParser(text);
+        console.error("❌ AI Parsing Error:", error.message);
+        return basicHeuristicParser(text || "");
     }
 };
 

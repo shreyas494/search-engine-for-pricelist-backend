@@ -39,9 +39,9 @@ router.post("/parse-pdf", upload.single("file"), async (req, res) => {
             return res.status(400).json({ error: "No readable text found in the PDF." });
         }
 
-        // 2. Send to AI for extraction
-        console.log("🤖 Sending text to Gemini AI...");
-        const extractedData = await parsePDFText(text);
+        // 2. Send to AI for extraction (Directly send PDF Buffer for OCR)
+        console.log("🤖 Sending PDF to Gemini AI (with OCR support)...");
+        const extractedData = await parsePDFText(text, dataBuffer);
         console.log(`✅ Extraction complete: found ${extractedData?.length} items`);
 
         res.json({ extractedData, rawText: text });
