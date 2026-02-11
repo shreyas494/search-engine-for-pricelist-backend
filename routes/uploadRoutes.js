@@ -23,9 +23,12 @@ router.post("/parse-pdf", upload.single("file"), async (req, res) => {
         const dataBuffer = req.file.buffer;
 
         console.log("⚙️ Starting PDF text extraction...");
-        const pdfFunc = pdf.default || pdf;
+        console.log("DEBUG: pdf object type:", typeof pdf);
+        console.log("DEBUG: pdf keys:", Object.keys(pdf || {}));
+        const pdfFunc = (typeof pdf === 'function') ? pdf : (pdf.default || pdf);
         if (typeof pdfFunc !== 'function') {
-            throw new Error('pdf-parse is not a function. Check import/compatibility.');
+            console.error("❌ pdfFunc is NOT a function. Value:", pdfFunc);
+            throw new Error('pdf-parse could not be loaded as a function.');
         }
         const pdfData = await pdfFunc(dataBuffer);
         const text = pdfData.text;
