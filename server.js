@@ -10,6 +10,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const VERSION = "2.2.0-SPREADSHEET-UPDATE";
+
+console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 
 // ✅ Middleware
 app.use(cors({
