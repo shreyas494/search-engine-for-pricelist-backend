@@ -1,6 +1,7 @@
 /**
- * TABLE-AWARE REGEX SCANNER (v6.3 - IRONCLAD)
- * Zero-AI, Zero-Limits. Acts like an Excel converter for PDF text.
+ * CSV SIMULATOR SCANNER (v6.5 - ULTRA PRECISION)
+ * Reconstructs fragmented PDF text into a clean CSV-like structure.
+ * Zero-AI, Zero-Quota, Maximum Reliability.
  */
 export const parsePDFText = async (text, pdfBuffer = null) => {
     try {
@@ -12,101 +13,86 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
         let globalBrand = "TYRE";
         const brandKeywords = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
 
-        // PASS 1: AGGRESSIVE BRAND DISCOVERY
-        for (const line of rawLines.slice(0, 100)) {
-            const up = line.toUpperCase();
-            for (const b of brandKeywords) {
-                if (up.includes(b)) {
-                    globalBrand = b;
-                    break;
-                }
+        // PASS 1: GLOBAL BRAND CONTEXT
+        const fullTextText = normalizedText.toUpperCase();
+        for (const b of brandKeywords) {
+            if (fullTextText.includes(b)) {
+                globalBrand = b;
+                break;
             }
-            if (globalBrand !== "TYRE") break;
         }
 
-        // PASS 2: GRID STITCHING (Heals fragmented rows)
-        const gridRows = [];
-        for (let i = 0; i < rawLines.length; i++) {
-            let current = rawLines[i];
-            let next = rawLines[i + 1] || "";
+        // PASS 2: EXTREME STITCHER (Excel-Style Row Reconstruction)
+        const stitchedRows = [];
+        let buffer = "";
 
-            // If current line looks like a model and NEXT line is JUST two prices, merge them.
-            // Price block regex: ([\d\.,]+)
-            const priceBlockRegex = /^([\d\.,]+)\s+([\d\.,]+)$/;
-            if (next.match(priceBlockRegex)) {
-                gridRows.push(current + " " + next);
-                i++; // Skip next
+        for (let line of rawLines) {
+            // Price Pair Regex (MUST be at the absolute end with spaces)
+            const pricePairRegex = /\s+(\d+[\d\.,]*)\s+(\d+[\d\.,]*)$/;
+
+            if (line.match(pricePairRegex)) {
+                stitchedRows.push((buffer + " " + line).trim());
+                buffer = "";
             } else {
-                gridRows.push(current);
+                const lower = line.toLowerCase();
+                const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "page", "date", "particulars"];
+                const isJunk = junkKeywords.some(k => lower.includes(k) && line.length < 30);
+
+                if (!isJunk) {
+                    buffer += " " + line;
+                }
             }
         }
 
         // PASS 3: PRECISION EXTRACTION
-        for (let line of gridRows) {
-            const lower = line.toLowerCase();
-            const upper = line.toUpperCase();
+        for (let row of stitchedRows) {
+            const lower = row.toLowerCase();
+            const upper = row.toUpperCase();
 
-            // Detect Brand Shift
             for (const b of brandKeywords) {
                 if (upper.includes(b) && (upper.includes("PRICE") || upper.includes("LIST"))) {
                     globalBrand = b;
                 }
             }
 
-            // FILTER JUNK (Headers/Footers)
-            const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
-            const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
-            if (junkCount >= 3 || lower.startsWith("sr no") || lower.startsWith("s.no")) continue;
+            if (row.length < 10) continue;
 
-            // Master "Table" Regex: Targets exactly TWO numbers at the absolute end of the line.
-            // This is the "Ironclad Anchor" that ignores Rim Sizes (17, 18, 19) in the middle.
             const tableRegex = /\s+(\d+[\d\.,]*)\s+(\d+[\d\.,]*)$/;
-            const match = line.match(tableRegex);
+            const match = row.match(tableRegex);
 
             if (match) {
-                const rawDp = match[1];
-                const rawMrp = match[2];
-                const dpValue = parseFloat(rawDp.replace(/,/g, ""));
-                const mrpValue = parseFloat(rawMrp.replace(/,/g, ""));
+                const rawDp = match[1].replace(/,/g, "");
+                const rawMrp = match[2].replace(/,/g, "");
+                const dp = parseFloat(rawDp);
+                const mrp = parseFloat(rawMrp);
 
-                // Validate (MRP must be > 10 to avoid page numbers/noise)
-                if (!isNaN(dpValue) && !isNaN(mrpValue) && mrpValue > 10) {
-                    const pricePartStart = line.lastIndexOf(rawDp);
-                    let modelPart = line.substring(0, pricePartStart).trim();
+                if (!isNaN(dp) && !isNaN(mrp) && mrp > 10) {
+                    const priceStart = row.lastIndexOf(match[1]);
+                    let model = row.substring(0, priceStart).trim();
 
-                    // Strip leading Serial Numbers: "1 ", "12.", "3-"
-                    modelPart = modelPart.replace(/^\d+[\.\s\-\)]+/, "").trim();
+                    // SMART SERIAL STRIPPER
+                    model = model.replace(/^(\d+)(?:\s+[\s\.\-\)]+)/, "").trim();
+                    model = model.replace(/^(\d+)\.\s+/, "").trim();
 
-                    if (modelPart.length > 2) {
+                    if (model.length > 1) {
                         results.push({
                             brand: globalBrand,
-                            model: modelPart,
+                            model: model,
                             type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
-                            dp: dpValue,
-                            mrp: mrpValue
+                            dp: dp,
+                            mrp: mrp
                         });
                         continue;
                     }
                 }
             }
-
-            // FALLBACK: Preserve the line even if data extraction was uncertain
-            if (line.length > 15 && junkCount < 2 && !lower.includes("page")) {
-                results.push({
-                    brand: globalBrand,
-                    model: line.replace(/^\d+[\.\s\-\)]+/, "").trim(),
-                    type: "Validate",
-                    dp: 0,
-                    mrp: 0
-                });
-            }
         }
 
-        console.log(`📡 v6.3 Table-Aware Scan: Found ${results.length} items. (AI-FREE)`);
+        console.log(`💎 v6.5 CSV-Sim Complete: Extracted ${results.length} items.`);
         return results;
 
     } catch (error) {
-        console.error("❌ v6.3 Parser Error:", error);
+        console.error("❌ v6.5 Parser Error:", error);
         return [];
     }
 };
