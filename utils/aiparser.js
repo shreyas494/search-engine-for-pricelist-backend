@@ -1,103 +1,103 @@
 /**
- * MASTER REGEX SCANNER (v6.0 - CHATGPT QUALITY)
- * Achieve 99% accuracy using strict bookend regex and dual-pass brand detection.
+ * PRECISION RIGHT-TO-LEFT SCANNER (v6.1 - CHATGPT QUALITY)
+ * Extracts prices from the end of the line regardless of model complexity.
  */
 export const parsePDFText = async (text, pdfBuffer = null) => {
     try {
         if (!text) return [];
-        const rawLines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+        // Normalize newlines and split
+        const normalizedText = text.replace(/\r/g, "");
+        const rawLines = normalizedText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
         const results = [];
 
-        // --- PASS 1: GLOBAL BRAND DISCOVERY ---
-        let globalBrand = "TYRE";
-        const brandKeywords = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
+        // --- PASS 1: GLOBAL BRAND CONTEXT ---
+        let currentBrand = "TYRE";
+        const brandKeywords = ["MRF", "CEAT", "APOLLO", "JK", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
 
-        for (const line of rawLines) {
+        // Initial scan for brand (if MRF PRICE LIST is at the top)
+        for (const line of rawLines.slice(0, 50)) {
             const upper = line.toUpperCase();
             for (const b of brandKeywords) {
-                // Look for "BRAND PRICE LIST" or just the brand name in prominent headers
-                if (upper.includes(b) && (upper.includes("PRICE") || upper.includes("LIST") || line.length < 20)) {
-                    globalBrand = b;
+                if (upper.includes(b)) {
+                    currentBrand = b === "JK" ? "JK TYRE" : b;
                     break;
                 }
             }
-            if (globalBrand !== "TYRE") break;
+            if (currentBrand !== "TYRE") break;
         }
 
-        // --- PASS 2: SURGICAL EXTRACTION ---
+        // --- PASS 2: EXTRACTION ---
         for (let line of rawLines) {
             const lower = line.toLowerCase();
             const upper = line.toUpperCase();
 
-            // 1. DYNAMIC BRAND UPDATE (Handles multi-brand PDFs)
+            // 1. Update Brand if header appears
             for (const b of brandKeywords) {
                 if (upper.includes(b) && (upper.includes("PRICE") || upper.includes("LIST"))) {
-                    globalBrand = b;
+                    currentBrand = b === "JK" ? "JK TYRE" : b;
                 }
             }
 
-            // 2. HEADER & JUNK FILTER
+            // 2. Junk Filter
             const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
             const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
-            if (junkCount >= 2 || lower.startsWith("sr no") || lower.startsWith("s.no")) continue;
+            if (junkCount >= 3 || lower.startsWith("sr no") || lower.startsWith("s.no")) continue;
 
-            // 3. MASTER BOOKEND REGEX
-            // Pattern: [Optional Serial] [Model/Pattern] [DP] [MRP]
-            // ^(?:(\d+)[\.\s\-]+)? -> Opt Serial
-            // (.*?)                -> Model (Non-greedy)
-            // \s+([\d\.,]+)        -> DP (Second to last number block)
-            // \s+([\d\.,]+)$       -> MRP (Absolute last number block)
-            const masterRegex = /^(?:(\d+)[\.\s\-]+)?(.*?)\s+([\d\.,]+)\s+([\d\.,]+)$/;
-            const match = line.match(masterRegex);
+            // 3. RIGHT-TO-LEFT PRICE EXTRACTION
+            // We look for all number-like blocks in the line
+            // regex: (\d+[\d\.,]*)
+            const numBlocks = line.match(/\d+[\d\.,]*/g);
 
-            if (match) {
-                const modelPart = match[2].trim();
-                const rawDp = match[3];
-                const rawMrp = match[4];
+            if (numBlocks && numBlocks.length >= 2) {
+                // Potential DP and MRP are the last two blocks
+                const rawMrp = numBlocks[numBlocks.length - 1];
+                const rawDp = numBlocks[numBlocks.length - 2];
 
-                const dp = parseFloat(rawDp.replace(/,/g, ""));
-                const mrp = parseFloat(rawMrp.replace(/,/g, ""));
+                const mrpValue = parseFloat(rawMrp.replace(/,/g, ""));
+                const dpValue = parseFloat(rawDp.replace(/,/g, ""));
 
-                if (!isNaN(dp) && !isNaN(mrp) && mrp > 10) { // mrp > 10 to avoid incidental page numbers
-                    results.push({
-                        brand: globalBrand,
-                        model: modelPart,
-                        type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
-                        dp: dp,
-                        mrp: mrp
-                    });
-                    continue;
+                // Validate (MRP should be > 10 to avoid noise like "Page 1")
+                if (!isNaN(mrpValue) && !isNaN(dpValue) && mrpValue > 10) {
+                    // Isolation: Everything before the DP block
+                    // We split by DP and take the first part. To be safe, we split from the right.
+                    const dpIndex = line.lastIndexOf(rawDp);
+                    let modelPart = line.substring(0, dpIndex).trim();
+
+                    // Strip leading serial numbers: "1 ", "12.", "3-"
+                    modelPart = modelPart.replace(/^\d+[\.\s\-\)]+/, "").trim();
+
+                    // If modelPart is empty or too short, it might be a split line.
+                    if (modelPart.length > 2) {
+                        results.push({
+                            brand: currentBrand,
+                            model: modelPart,
+                            type: lower.includes("t/l") || lower.includes("tubeless") || lower.includes("/l") ? "Tubeless" : "Tube",
+                            dp: dpValue,
+                            mrp: mrpValue
+                        });
+                        continue;
+                    }
                 }
             }
 
-            // 4. SMART FALLBACK (For lines without serial numbers or different spacing)
-            const endPricesRegex = /\s+(\d+[,\d]*(\.\d+)?)\s+(\d+[,\d]*(\.\d+)?)$/;
-            const fallbackMatch = line.match(endPricesRegex);
-            if (fallbackMatch) {
-                const rawPrice1 = fallbackMatch[1];
-                const rawPrice2 = fallbackMatch[3];
-                const p1 = parseFloat(rawPrice1.replace(/,/g, ""));
-                const p2 = parseFloat(rawPrice2.replace(/,/g, ""));
-
-                if (!isNaN(p1) && !isNaN(p2) && p2 > 10) {
-                    const textPart = line.substring(0, line.lastIndexOf(rawPrice1)).trim().replace(/^\d+[\.\s\-\)]+/, "").trim();
-                    results.push({
-                        brand: globalBrand,
-                        model: textPart,
-                        type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
-                        dp: p1,
-                        mrp: p2
-                    });
-                    continue;
-                }
+            // 4. FALLBACK: RAW DATA preservation
+            // If line is long enough and not junk, keep it as an unparsed item
+            if (line.length > 20 && junkCount < 2 && !lower.includes("page")) {
+                results.push({
+                    brand: currentBrand,
+                    model: line.replace(/^\d+[\.\s\-\)]+/, "").trim(),
+                    type: "Check PDF",
+                    dp: 0,
+                    mrp: 0
+                });
             }
         }
 
-        console.log(`💎 v6.0 Master Scan: Extracted ${results.length} items with ChatGPT-quality precision.`);
+        console.log(`📡 v6.1 Extraction Complete: ${results.length} items parsed locally.`);
         return results;
 
     } catch (error) {
-        console.error("❌ v6.0 Parser Error:", error);
+        console.error("❌ v6.1 Parser Error:", error);
         return [];
     }
 };
