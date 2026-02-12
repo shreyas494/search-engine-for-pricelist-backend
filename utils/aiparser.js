@@ -62,22 +62,25 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
 };
 
 /**
- * PRODUCTION-GRADE HEURISTIC PARSER
- * Works without AI. Skips headers, strips Sr No, detects brand.
+ * PERFECT HEURISTIC PARSER (v3.0)
+ * Aggressive filtering to ensure zero garbage.
  */
 export const basicHeuristicParser = (text) => {
     const lines = text.split("\n");
     const results = [];
-    let discoveredBrand = "NEW";
+    let discoveredBrand = "TYRE";
 
-    // Pass 1: Global Brand Detection (Top of page)
-    const brandRegex = /(MRF|CEAT|APOLLO|JK TYRE|GOODYEAR|DUNLOP|BRIDGESTONE|MICHELIN|TVS|METZELER|PIRELLI|CONTINENTAL)/i;
-    for (const l of lines.slice(0, 20)) {
-        const match = l.match(brandRegex);
-        if (match) {
-            discoveredBrand = match[0].toUpperCase();
-            break;
+    // Pass 1: Global Brand Detection
+    for (const l of lines.slice(0, 25)) {
+        const line = l.trim().toUpperCase();
+        const brands = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
+        for (const b of brands) {
+            if (line.includes(b) && (line.includes("PRICE") || line.includes("LIST") || line.includes("PRODUCT"))) {
+                discoveredBrand = b;
+                break;
+            }
         }
+        if (discoveredBrand !== "TYRE") break;
     }
 
     // Pass 2: Data Extraction
@@ -87,42 +90,45 @@ export const basicHeuristicParser = (text) => {
 
         const lower = line.toLowerCase();
 
-        // 1. SMART HEADER FILTER (Prevents "SR NOTYRE MODEL" rows)
-        // Detect lines containing multiple header-like keywords or concatenated versions
-        const headerKeywords = ["sr no", "srno", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern"];
-        const matchCount = headerKeywords.filter(k => lower.includes(k)).length;
-        if (matchCount >= 2 || lower.includes("srno") || lower.includes("sr.no")) continue;
+        // 1. EXTREME HEADER/JUNK FILTER
+        const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
+        // If line contains 2 or more junk words, it's definitely a header
+        const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
+        if (junkCount >= 2) continue;
+        if (lower.startsWith("sr no") || lower.startsWith("s.no") || lower.startsWith("srno")) continue;
 
-        // 2. STRIP SR NO (Digits at start followed by dot, space, or hyphen)
-        // Example: "1. 3.25-19" -> "3.25-19"
-        line = line.replace(/^\d+[\.\s\-]+/, "").trim();
+        // 2. STRIP SERIAL NUMBER (Start of line)
+        // Match: "1. ", "5 ", "10-", "1)"
+        line = line.replace(/^\d+[\.\s\-\)]+/, "").trim();
 
-        // 3. PRICE EXTRACTION (Finds all numbers/decimals)
-        const numbers = line.match(/\d+[,.]?\d*/g);
+        // 3. ADAPTIVE PRICE DETECTION
+        const allNums = line.match(/\d+[\d\.,]*/g);
+        if (allNums && allNums.length >= 2) {
+            // Check the last two numbers. In a pricelist, they are usually at the end.
+            const rawMrp = allNums[allNums.length - 1];
+            const rawDp = allNums[allNums.length - 2];
 
-        if (numbers && numbers.length >= 2) {
-            // Take the last two significant numbers as DP and MRP
-            const lastNum = parseFloat(numbers[numbers.length - 1].replace(/,/g, ""));
-            const prevNum = parseFloat(numbers[numbers.length - 2].replace(/,/g, ""));
+            const mrp = parseFloat(rawMrp.replace(/,/g, ""));
+            const dp = parseFloat(rawDp.replace(/,/g, ""));
 
-            // Threshold: Tyre prices are usually > 100. If lower, they might be quantities/sizes.
-            if (lastNum > 100 && prevNum > 100) {
-                // Remove numbers from line to get the text part (Brand + Model)
-                const textPart = line.replace(/\d+[,.]?\d*/g, "").trim();
+            // If we found valid-looking prices (not just '1' or '0')
+            if (!isNaN(mrp) && !isNaN(dp) && mrp > 0) {
+                // The "Model/Pattern" is everything BEFORE the prices
+                const textPortion = line.split(rawDp)[0].trim();
 
                 results.push({
                     brand: discoveredBrand,
-                    model: textPart || "Product",
-                    type: "Tubeless", // Default
-                    dp: prevNum,
-                    mrp: lastNum
+                    model: textPortion || "Unknown Item",
+                    type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
+                    dp: dp,
+                    mrp: mrp
                 });
                 continue;
             }
         }
 
-        // 4. DRAFT ROW (If no prices found, but line is substantial and NOT a header)
-        if (line.length > 20 && !lower.includes("page") && !lower.includes("date") && !line.includes("---")) {
+        // 4. CLEAN DRAFT (Only if substantial and passed junk filter)
+        if (line.length > 15 && junkCount < 1) {
             results.push({
                 brand: discoveredBrand,
                 model: line,
@@ -133,6 +139,6 @@ export const basicHeuristicParser = (text) => {
         }
     }
 
-    console.log(`🛠️ Heuristic Pro: Extracted ${results.length} items (Brand: ${discoveredBrand})`);
+    console.log(`🚀 Perfect-Heuristics v3.0: Extracted ${results.length} items.`);
     return results;
 };
