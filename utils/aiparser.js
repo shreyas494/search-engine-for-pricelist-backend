@@ -9,10 +9,17 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
         if (!key) throw new Error("GEMINI_API_KEY is missing");
 
         const prompt = `
-            Extract ALL pricelist items from the provided data.
-            Required fields: brand, model, type, dp (numeric), mrp (numeric).
-            If a value is missing, infer it from context or leave as null.
+            Task: Extract pricelist data from the provided PDF content.
+            
+            Rules:
+            1. GLOBAL BRAND DETECTION: Look for a main heading or title (e.g., "MRF PRICE LIST", "CEAT TYRES"). If found, set the "brand" field for EVERY item in the array to that brand name.
+            2. DYNAMIC HEADERS: Identify the table columns dynamically from the PDF. do NOT use a fixed schema. 
+            3. IGNORE "Sr No": If there is a Serial Number or Sr No column, skip it.
+            4. FIELDS: Extract all other relevant fields (e.g., Model, Pattern, Size, Type, DP, MRP, Net Price). Use the exact or slightly cleaned names of the headers found in the PDF as JSON keys.
+            5. ACCURACY: Ensure numeric values (Prices) are parsed as numbers if possible.
+            
             Return ONLY a valid JSON array of objects.
+            Example format: [{"brand": "MRF", "Model Name": "ZVTS", "MRP": 4500, ...}]
         `;
 
         const modelsToTry = [
