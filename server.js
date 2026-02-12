@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const VERSION = "5.1.0-RAW-ULTRA";
+const VERSION = "6.3.0-TABLE-PRO";
 
 console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 
