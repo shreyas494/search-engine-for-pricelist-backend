@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const VERSION = "2.4.0-HEURISTIC-ACTIVE";
+const VERSION = "2.7.0-FINAL-SIMPLIFIED";
 
 console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 

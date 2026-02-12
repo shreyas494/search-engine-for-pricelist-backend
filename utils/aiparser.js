@@ -86,34 +86,44 @@ export const basicHeuristicParser = (text) => {
     const results = [];
 
     // Heuristic: Many pricelists have: BRAND [SPACE] MODEL [SPACE] ... [SPACE] DP [SPACE] MRP
-    // We look for lines containing at least two valid numbers >= 100
     for (let line of lines) {
         line = line.trim();
-        if (line.length < 10) continue;
+        if (line.length < 5) continue; // Skip very short lines
 
-        // Extract numbers
         const numbers = line.match(/\d+[,.]?\d*/g);
-        if (!numbers || numbers.length < 2) continue;
 
-        // Heuristic: The last two numbers are likely DP and MRP
-        const mrp = parseFloat(numbers[numbers.length - 1].replace(/,/g, ""));
-        const dp = parseFloat(numbers[numbers.length - 2].replace(/,/g, ""));
+        // If we find numbers, try to extract them as prices
+        if (numbers && numbers.length >= 2) {
+            const mrp = parseFloat(numbers[numbers.length - 1].replace(/,/g, ""));
+            const dp = parseFloat(numbers[numbers.length - 2].replace(/,/g, ""));
 
-        if (dp < 100 || mrp < 100) continue; // Skip non-price numbers
+            if (dp > 10 && mrp > 10) {
+                const textPart = line.replace(/\d+[,.]?\d*/g, "").trim();
+                const parts = textPart.split(/\s+/);
 
-        // Heuristic: The text before the numbers is Brand/Model/Type
-        const textPart = line.replace(/\d+[,.]?\d*/g, "").trim();
-        const parts = textPart.split(/\s+/);
+                results.push({
+                    brand: parts[0] || "Unknown",
+                    model: parts.slice(1).join(" ") || "Product Details",
+                    type: "Tubeless",
+                    dp: dp,
+                    mrp: mrp
+                });
+                continue;
+            }
+        }
 
-        results.push({
-            brand: parts[0] || "Unknown",
-            model: parts.slice(1, -1).join(" ") || parts[1] || "Generic Model",
-            type: parts[parts.length - 1] || "Tubeless",
-            dp: dp,
-            mrp: mrp
-        });
+        // FALLBACK: If no clear prices, just add the line as a "Draft" row for the user to edit
+        if (line.length > 10) {
+            results.push({
+                brand: "NEW",
+                model: line,
+                type: "",
+                dp: 0,
+                mrp: 0
+            });
+        }
     }
 
-    console.log(`🛠️ Basic Heuristic Parser: Extracted ${results.length} items.`);
+    console.log(`🛠️ Basic Heuristic Parser: Extracted ${results.length} items (including drafts).`);
     return results;
 };
