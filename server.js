@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const VERSION = "2.8.2-HEURISTIC-PRO";
+const VERSION = "5.1.0-RAW-ULTRA";
 
 console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 
