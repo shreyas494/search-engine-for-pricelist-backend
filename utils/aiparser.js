@@ -2,143 +2,100 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Initialize Gemini using direct fetch for stable v1/v1beta support
+/**
+ * PURE HEURISTIC SCANNER (v4.0 - NO AI)
+ * Uses Local Regex & Rule-based extraction only.
+ * 0 Cost, 0 Latency, 0 Quota Issues.
+ */
 export const parsePDFText = async (text, pdfBuffer = null) => {
     try {
-        const key = process.env.GEMINI_API_KEY;
-        if (!key) throw new Error("GEMINI_API_KEY is missing");
+        // We no longer use Gemini or pdfBuffer for OCR here. 
+        // We rely on the text extracted by pdf-parse in the route.
+        const lines = text.split("\n");
+        const results = [];
+        let discoveredBrand = "TYRE";
 
-        const prompt = `
-            STRICT EXTRACTION: Convert the PDF pricelist into a JSON array.
-            1. BRAND: Identify the brand (MRF, CEAT, etc) and apply to every row.
-            2. HEADERS: Use table columns as JSON keys. IGNORE the header row itself.
-            3. IGNORE Sr No: Do not include serial numbers.
-            Return ONLY a raw JSON array.
-        `;
+        // Pass 1: Global Brand & Metadata Detection
+        // Common Brands to look for in headers
+        const brands = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS", "METZELER", "PIRELLI", "CONTINENTAL"];
 
-        const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash"];
-        let textResponse = "";
-
-        for (const modelName of modelsToTry) {
-            try {
-                const apiVersion = modelName.includes("2.0") ? "v1beta" : "v1";
-                const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${key}`;
-
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            pdfBuffer
-                                ? { inline_data: { mime_type: "application/pdf", data: pdfBuffer.toString("base64") } }
-                                : { text: `Data: ${text.slice(0, 30000)}` }
-                        ]
-                    }]
-                };
-
-                const res = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (textResponse) break;
+        for (const l of lines.slice(0, 30)) {
+            const line = l.trim().toUpperCase();
+            for (const b of brands) {
+                // If line contains brand name AND context words like Price List or Date
+                if (line.includes(b)) {
+                    discoveredBrand = b;
+                    break;
                 }
-            } catch (err) {
-                console.warn(`AI fail: ${modelName}`);
             }
+            if (discoveredBrand !== "TYRE") break;
         }
 
-        if (!textResponse) return basicHeuristicParser(text || "");
+        // Pass 2: Line-by-Line Extraction
+        for (let line of lines) {
+            line = line.trim();
+            if (line.length < 5) continue;
 
-        const cleanedText = textResponse.replace(/```json|```/g, "").trim();
-        const jsonMatch = cleanedText.match(/\[\s*\{[\s\S]*\}\s*\]/);
-        return JSON.parse(jsonMatch ? jsonMatch[0] : cleanedText);
-    } catch (error) {
-        return basicHeuristicParser(text || "");
-    }
-};
+            const lower = line.toLowerCase();
 
-/**
- * PERFECT HEURISTIC PARSER (v3.0)
- * Aggressive filtering to ensure zero garbage.
- */
-export const basicHeuristicParser = (text) => {
-    const lines = text.split("\n");
-    const results = [];
-    let discoveredBrand = "TYRE";
+            // 1. FILTER JUNK / HEADERS
+            // Kill lines that look like table headers or noise
+            const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
+            const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
 
-    // Pass 1: Global Brand Detection
-    for (const l of lines.slice(0, 25)) {
-        const line = l.trim().toUpperCase();
-        const brands = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
-        for (const b of brands) {
-            if (line.includes(b) && (line.includes("PRICE") || line.includes("LIST") || line.includes("PRODUCT"))) {
-                discoveredBrand = b;
-                break;
+            // Merged Header Detection: e.g. "SRNOTYREMODEL" 
+            if (junkCount >= 2 || lower.includes("srno") || lower.includes("sr.no")) continue;
+
+            // 2. STRIP SR NO & LEAD-IN NOISE
+            // Regex matches digits at start followed by dots, spaces, or brackets
+            // e.g. "1. ", "5  ", "10-", "1)" -> wiped
+            line = line.replace(/^\d+[\.\s\-\)]+/, "").trim();
+
+            // 3. PRICE EXTRACTION (Adaptive Regex)
+            // Look for numbers at the end of the line. 
+            // In tire pricelists, they are usually: [TEXT] [DP/NET] [MRP/MRP+TAX]
+            const allNums = line.match(/\d+[\d\.,]*/g);
+            if (allNums && allNums.length >= 2) {
+                const rawMrp = allNums[allNums.length - 1];
+                const rawDp = allNums[allNums.length - 2];
+
+                const mrp = parseFloat(rawMrp.replace(/,/g, ""));
+                const dp = parseFloat(rawDp.replace(/,/g, ""));
+
+                // Threshold-Free matching: if both are numbers and MRP > 0
+                if (!isNaN(mrp) && !isNaN(dp) && mrp > 0) {
+                    // Extract the Model/Pattern part (Everything before the first number we identified)
+                    const textSegments = line.split(rawDp);
+                    const modelPart = textSegments[0].trim();
+
+                    results.push({
+                        brand: discoveredBrand,
+                        model: modelPart || "Unknown Item",
+                        type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
+                        dp: dp,
+                        mrp: mrp
+                    });
+                    continue;
+                }
             }
-        }
-        if (discoveredBrand !== "TYRE") break;
-    }
 
-    // Pass 2: Data Extraction
-    for (let line of lines) {
-        line = line.trim();
-        if (line.length < 5) continue;
-
-        const lower = line.toLowerCase();
-
-        // 1. EXTREME HEADER/JUNK FILTER
-        const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
-        // If line contains 2 or more junk words, it's definitely a header
-        const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
-        if (junkCount >= 2) continue;
-        if (lower.startsWith("sr no") || lower.startsWith("s.no") || lower.startsWith("srno")) continue;
-
-        // 2. STRIP SERIAL NUMBER (Start of line)
-        // Match: "1. ", "5 ", "10-", "1)"
-        line = line.replace(/^\d+[\.\s\-\)]+/, "").trim();
-
-        // 3. ADAPTIVE PRICE DETECTION
-        const allNums = line.match(/\d+[\d\.,]*/g);
-        if (allNums && allNums.length >= 2) {
-            // Check the last two numbers. In a pricelist, they are usually at the end.
-            const rawMrp = allNums[allNums.length - 1];
-            const rawDp = allNums[allNums.length - 2];
-
-            const mrp = parseFloat(rawMrp.replace(/,/g, ""));
-            const dp = parseFloat(rawDp.replace(/,/g, ""));
-
-            // If we found valid-looking prices (not just '1' or '0')
-            if (!isNaN(mrp) && !isNaN(dp) && mrp > 0) {
-                // The "Model/Pattern" is everything BEFORE the prices
-                const textPortion = line.split(rawDp)[0].trim();
-
+            // 4. CLEAN DRAFT (As fallback)
+            if (line.length > 15 && junkCount < 1) {
                 results.push({
                     brand: discoveredBrand,
-                    model: textPortion || "Unknown Item",
-                    type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
-                    dp: dp,
-                    mrp: mrp
+                    model: line.slice(0, 100),
+                    type: "",
+                    dp: 0,
+                    mrp: 0
                 });
-                continue;
             }
         }
 
-        // 4. CLEAN DRAFT (Only if substantial and passed junk filter)
-        if (line.length > 15 && junkCount < 1) {
-            results.push({
-                brand: discoveredBrand,
-                model: line,
-                type: "",
-                dp: 0,
-                mrp: 0
-            });
-        }
-    }
+        console.log(`📡 Local Scan Complete (v4.0): ${results.length} items extracted locally.`);
+        return results;
 
-    console.log(`🚀 Perfect-Heuristics v3.0: Extracted ${results.length} items.`);
-    return results;
+    } catch (error) {
+        console.error("❌ Local Parser Error:", error);
+        return [];
+    }
 };
