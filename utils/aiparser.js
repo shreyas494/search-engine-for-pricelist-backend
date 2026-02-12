@@ -1,28 +1,18 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 /**
- * PURE HEURISTIC SCANNER (v4.0 - NO AI)
- * Uses Local Regex & Rule-based extraction only.
- * 0 Cost, 0 Latency, 0 Quota Issues.
+ * PURE REGEX SCANNER (v5.0 - ZERO AI)
+ * Uses strict "End-of-Line" isolation to separate Product vs Price.
  */
 export const parsePDFText = async (text, pdfBuffer = null) => {
     try {
-        // We no longer use Gemini or pdfBuffer for OCR here. 
-        // We rely on the text extracted by pdf-parse in the route.
         const lines = text.split("\n");
         const results = [];
         let discoveredBrand = "TYRE";
 
-        // Pass 1: Global Brand & Metadata Detection
-        // Common Brands to look for in headers
-        const brands = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS", "METZELER", "PIRELLI", "CONTINENTAL"];
-
-        for (const l of lines.slice(0, 30)) {
+        // Pass 1: Global Brand Detection (Scan top & bottom)
+        const brands = ["MRF", "CEAT", "APOLLO", "JK TYRE", "GOODYEAR", "DUNLOP", "BRIDGESTONE", "MICHELIN", "TVS"];
+        for (const l of lines) {
             const line = l.trim().toUpperCase();
             for (const b of brands) {
-                // If line contains brand name AND context words like Price List or Date
                 if (line.includes(b)) {
                     discoveredBrand = b;
                     break;
@@ -38,39 +28,33 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
 
             const lower = line.toLowerCase();
 
-            // 1. FILTER JUNK / HEADERS
-            // Kill lines that look like table headers or noise
+            // 1. FILTER HEADERS & JUNK (Aggressive)
             const junkKeywords = ["sr no", "srno", "s.no", "model", "tyre", "price", "mrp", "dp", "effective", "particulars", "pattern", "consumer", "retail", "page", "date", "---", "==="];
             const junkCount = junkKeywords.filter(k => lower.includes(k)).length;
+            if (junkCount >= 2 || lower.startsWith("sr no") || lower.startsWith("s.no")) continue;
 
-            // Merged Header Detection: e.g. "SRNOTYREMODEL" 
-            if (junkCount >= 2 || lower.includes("srno") || lower.includes("sr.no")) continue;
+            // 2. END-OF-LINE PRICE ISOLATION
+            // Matches: [Space] [Number1] [Space] [Number2] at the absolute end of the line.
+            // Number regex handles commas and decimals: (\d+[,\d]*(\.\d+)?)
+            const priceRegex = /\s+(\d+[,\d]*(\.\d+)?)\s+(\d+[,\d]*(\.\d+)?)$/;
+            const match = line.match(priceRegex);
 
-            // 2. STRIP SR NO & LEAD-IN NOISE
-            // Regex matches digits at start followed by dots, spaces, or brackets
-            // e.g. "1. ", "5  ", "10-", "1)" -> wiped
-            line = line.replace(/^\d+[\.\s\-\)]+/, "").trim();
+            if (match) {
+                const rawDp = match[1];
+                const rawMrp = match[3];
 
-            // 3. PRICE EXTRACTION (Adaptive Regex)
-            // Look for numbers at the end of the line. 
-            // In tire pricelists, they are usually: [TEXT] [DP/NET] [MRP/MRP+TAX]
-            const allNums = line.match(/\d+[\d\.,]*/g);
-            if (allNums && allNums.length >= 2) {
-                const rawMrp = allNums[allNums.length - 1];
-                const rawDp = allNums[allNums.length - 2];
-
-                const mrp = parseFloat(rawMrp.replace(/,/g, ""));
                 const dp = parseFloat(rawDp.replace(/,/g, ""));
+                const mrp = parseFloat(rawMrp.replace(/,/g, ""));
 
-                // Threshold-Free matching: if both are numbers and MRP > 0
-                if (!isNaN(mrp) && !isNaN(dp) && mrp > 0) {
-                    // Extract the Model/Pattern part (Everything before the first number we identified)
-                    const textSegments = line.split(rawDp);
-                    const modelPart = textSegments[0].trim();
+                if (!isNaN(dp) && !isNaN(mrp)) {
+                    // Everything before the DP is the product name (after stripping Sr No)
+                    const fullLineBeforePrice = line.substring(0, line.lastIndexOf(rawDp)).trim();
+                    // Strip Leading Serial Numbers: "1 ", "12.", "3-"
+                    const modelPart = fullLineBeforePrice.replace(/^\d+[\.\s\-\)]+/, "").trim();
 
                     results.push({
                         brand: discoveredBrand,
-                        model: modelPart || "Unknown Item",
+                        model: modelPart || "Unknown Product",
                         type: lower.includes("t/l") || lower.includes("tubeless") ? "Tubeless" : "Tube",
                         dp: dp,
                         mrp: mrp
@@ -79,11 +63,12 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
                 }
             }
 
-            // 4. CLEAN DRAFT (As fallback)
-            if (line.length > 15 && junkCount < 1) {
+            // 3. DRAFT ROW (Fallback if no prices found but line is clean)
+            if (line.length > 20 && junkCount < 1 && !lower.includes("page")) {
+                const cleanedLine = line.replace(/^\d+[\.\s\-\)]+/, "").trim();
                 results.push({
                     brand: discoveredBrand,
-                    model: line.slice(0, 100),
+                    model: cleanedLine,
                     type: "",
                     dp: 0,
                     mrp: 0
@@ -91,11 +76,11 @@ export const parsePDFText = async (text, pdfBuffer = null) => {
             }
         }
 
-        console.log(`📡 Local Scan Complete (v4.0): ${results.length} items extracted locally.`);
+        console.log(`✅ v5.0 Pure Regex Scan: Found ${results.length} items locally.`);
         return results;
 
     } catch (error) {
-        console.error("❌ Local Parser Error:", error);
+        console.error("❌ v5.0 Parser Error:", error);
         return [];
     }
 };
