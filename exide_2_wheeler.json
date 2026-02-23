@@ -1,0 +1,15 @@
+[
+  {"brand": "Exide 2 Wheeler", "model": "12XL2.5LC", "ah": 2.5, "dp": 784, "mrp": 1086, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ4", "ah": 3, "dp": 964, "mrp": 1200, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ4A", "ah": 4, "dp": 919, "mrp": 1272, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ5", "ah": 4, "dp": 1239, "mrp": 1547, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ5A", "ah": 5, "dp": 1084, "mrp": 1501, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ6", "ah": 5, "dp": 1287, "mrp": 1609, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "12XL5L-B", "ah": 5, "dp": 1197, "mrp": 1657, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ7", "ah": 6, "dp": 1482, "mrp": 1965, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "12XL7B-B", "ah": 7, "dp": 1297, "mrp": 1687, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTZ9", "ah": 9, "dp": 1762, "mrp": 2313, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "12XL9-B", "ah": 9, "dp": 1844, "mrp": 2397, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "XLTX14", "ah": 12, "dp": 2617, "mrp": 3434, "warranty": "48 Months (24F + 24P)"},
+  {"brand": "Exide 2 Wheeler", "model": "12XL14L-A2", "ah": 14, "dp": 2999, "mrp": 3951, "warranty": "48 Months (24F + 24P)"}
+]

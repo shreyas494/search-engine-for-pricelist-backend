@@ -1,0 +1,72 @@
+[
+  {"brand":"Exide Four Wheeler","model":"EPIQ35L","ah":35,"dp":4682,"mrp":5583,"warranty":"42F+35P"},
+  {"brand":"Exide Four Wheeler","model":"EPIQ40LBH","ah":40,"dp":5259,"mrp":6273,"warranty":"42F+35P"},
+  {"brand":"Exide Four Wheeler","model":"EPIQDIN74L","ah":74,"dp":11349,"mrp":13537,"warranty":"42F+35P"},
+
+  {"brand":"Exide Four Wheeler","model":"MT40B20L/R","ah":35,"dp":4237,"mrp":4986,"warranty":"36F+36P"},
+  {"brand":"Exide Four Wheeler","model":"MTRED45L","ah":45,"dp":7723,"mrp":9090,"warranty":"36F+36P"},
+  {"brand":"Exide Four Wheeler","model":"MTREDDIN100","ah":100,"dp":17519,"mrp":20619,"warranty":"36F+36P"},
+
+  {"brand":"Exide Four Wheeler","model":"MLN42(ISS)","ah":38,"dp":4970,"mrp":5770,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLN55(ISS)","ah":45,"dp":6850,"mrp":7955,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN70(ISS)","ah":70,"dp":8987,"mrp":10438,"warranty":"30F+30P"},
+
+  {"brand":"Exide Four Wheeler","model":"ML38B20L/R","ah":35,"dp":4039,"mrp":4691,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML40LBH/RBH","ah":40,"dp":4948,"mrp":5748,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN44R/LH","ah":44,"dp":5972,"mrp":6935,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML45D21LBH","ah":45,"dp":6519,"mrp":7570,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML55B24L(T1)","ah":50,"dp":6597,"mrp":7661,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN50","ah":50,"dp":6557,"mrp":7614,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML55D23L","ah":54,"dp":6854,"mrp":7962,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN55/R","ah":55,"dp":7501,"mrp":8712,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN60","ah":60,"dp":7682,"mrp":8923,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN66/66A","ah":66,"dp":7714,"mrp":8957,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML75D23LBH","ah":68,"dp":7219,"mrp":8385,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"ML85D26R/L","ah":72,"dp":8298,"mrp":9635,"warranty":"30F+30P"},
+  {"brand":"Exide Four Wheeler","model":"MLDIN80","ah":80,"dp":11215,"mrp":13023,"warranty":"30F+30P"},
+
+  {"brand":"Exide Four Wheeler","model":"EYDIN47RMFEFB","ah":47,"dp":6346,"mrp":7180,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EYDIN52RMFEFB","ah":52,"dp":6646,"mrp":7521,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EYDIN78LMFEFB","ah":78,"dp":8998,"mrp":10182,"warranty":"24F+24P"},
+
+  {"brand":"Exide Four Wheeler","model":"EY34B19L/R","ah":33,"dp":3684,"mrp":4168,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EY700L/R","ah":65,"dp":7432,"mrp":8409,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EY700F/EY700LF","ah":65,"dp":7432,"mrp":8409,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EY80D23R","ah":68,"dp":7432,"mrp":8409,"warranty":"24F+24P"},
+  {"brand":"Exide Four Wheeler","model":"EY105D31L/R","ah":85,"dp":8067,"mrp":9129,"warranty":"24F+24P"},
+
+  {"brand":"Exide Four Wheeler","model":"RIDE35L","ah":35,"dp":3311,"mrp":3577,"warranty":"12F+12P"},
+  {"brand":"Exide Four Wheeler","model":"RIDE45L","ah":45,"dp":5542,"mrp":5987,"warranty":"12F+12P"},
+  {"brand":"Exide Four Wheeler","model":"RIDE70OL/R","ah":65,"dp":5672,"mrp":6129,"warranty":"12F+12P"},
+  {"brand":"Exide Four Wheeler","model":"RIDE700LF/RF","ah":65,"dp":5672,"mrp":6129,"warranty":"12F+12P"},
+
+  {"brand":"Exide Four Wheeler","model":"EKO32","ah":32,"dp":3319,"mrp":3675,"warranty":"24F"},
+  {"brand":"Exide Four Wheeler","model":"EKO40L","ah":35,"dp":3919,"mrp":4338,"warranty":"24F"},
+  {"brand":"Exide Four Wheeler","model":"EKO50L","ah":50,"dp":5370,"mrp":5946,"warranty":"24F"},
+  {"brand":"Exide Four Wheeler","model":"EKO55L","ah":55,"dp":5473,"mrp":6058,"warranty":"24F"},
+  {"brand":"Exide Four Wheeler","model":"EKO60L/R","ah":60,"dp":5600,"mrp":6199,"warranty":"24F"},
+
+  {"brand":"Exide Four Wheeler","model":"DMWATER-5L","ah":5,"dp":105,"mrp":155,"warranty":"NA"},
+
+  {"brand":"Exide Four Wheeler","model":"XP800","ah":80,"dp":7528,"mrp":8308,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP800F","ah":80,"dp":7528,"mrp":8308,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP880","ah":88,"dp":8326,"mrp":9187,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1000","ah":100,"dp":9457,"mrp":10433,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1000H29R","ah":100,"dp":9172,"mrp":10120,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1200/L(RH)","ah":120,"dp":11578,"mrp":12772,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1300","ah":130,"dp":11832,"mrp":13053,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1500","ah":150,"dp":15146,"mrp":16708,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP1800","ah":180,"dp":17892,"mrp":19741,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"XP2000","ah":200,"dp":23976,"mrp":26452,"warranty":"24F+18P"},
+
+  {"brand":"Exide Four Wheeler","model":"KI75TF","ah":75,"dp":7372,"mrp":7746,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"KI80T","ah":80,"dp":7519,"mrp":7901,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"KI88T/TLH","ah":88,"dp":7673,"mrp":8063,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"KI90H29L","ah":90,"dp":7673,"mrp":8063,"warranty":"24F+18P"},
+  {"brand":"Exide Four Wheeler","model":"KI99T","ah":99,"dp":8799,"mrp":9245,"warranty":"24F+18P"},
+
+  {"brand":"Exide Four Wheeler","model":"ERTBPLUS125N","ah":125,"dp":9953,"mrp":11089,"warranty":"12F"},
+  {"brand":"Exide Four Wheeler","model":"ERTBPLUS135N","ah":135,"dp":10178,"mrp":11339,"warranty":"12F"},
+  {"brand":"Exide Four Wheeler","model":"ERTBPLUS150N","ah":150,"dp":11901,"mrp":13258,"warranty":"15F"},
+  {"brand":"Exide Four Wheeler","model":"ERFLPLUS100L","ah":100,"dp":8342,"mrp":10185,"warranty":"7F"}
+]

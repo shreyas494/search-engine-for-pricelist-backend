@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import compression from "compression";
-import uploadRoutes from "./routes/uploadRoutes.js";
+
 
 dotenv.config();
 
@@ -34,17 +34,31 @@ mongoose
 
 import Tyre from "./models/Tyre.js";
 
-// ✅ Get tyres with optional filters
+// ✅ Get tyres with optional filters, pagination and limit
 app.get("/api/tyres", async (req, res) => {
   try {
-    const { search, brand } = req.query;
+    const { search, brand, page = 1, limit = 0 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const resultLimit = parseInt(limit);
 
     let filter = {};
     if (brand) filter.brand = brand;
     if (search) filter.model = { $regex: search, $options: "i" };
 
-    const tyres = await Tyre.find(filter);
-    res.json(tyres);
+    const query = Tyre.find(filter).sort({ _id: 1 });
+
+    if (skip > 0) query.skip(skip);
+    if (resultLimit > 0) query.limit(resultLimit);
+
+    const tyres = await query.exec();
+    const total = await Tyre.countDocuments(filter);
+
+    res.json({
+      tyres,
+      total,
+      page: parseInt(page),
+      pages: resultLimit > 0 ? Math.ceil(total / resultLimit) : 1
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -58,14 +72,6 @@ app.get("/api/brands", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
-
-// ✅ Admin Upload Routes
-app.use("/api/admin", uploadRoutes);
-
-// ✅ Root Endpoint
-app.get("/", (req, res) => {
-  res.send("API is running...");
 });
 
 // ✅ Start server

@@ -8,7 +8,7 @@ const TyreSchema = new mongoose.Schema(
         dp: Number,
         mrp: Number,
     },
-    { collection: "tyres" }
+    { collection: "tyres", timestamps: true }
 );
 
 // Compound index for searching by brand + model
