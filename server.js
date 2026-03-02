@@ -34,6 +34,11 @@ mongoose
 
 import Tyre from "./models/Tyre.js";
 
+// ✅ Simple Brand Cache
+let brandCache = null;
+let lastCacheUpdate = 0;
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
 // ✅ Get tyres with optional filters, pagination and limit
 app.get("/api/tyres", async (req, res) => {
   try {
@@ -45,13 +50,11 @@ app.get("/api/tyres", async (req, res) => {
     if (brand) filter.brand = brand;
     if (search) filter.model = { $regex: search, $options: "i" };
 
-    const query = Tyre.find(filter).sort({ _id: 1 });
-
-    if (skip > 0) query.skip(skip);
-    if (resultLimit > 0) query.limit(resultLimit);
-
-    const tyres = await query.exec();
-    const total = await Tyre.countDocuments(filter);
+    // Parallelize find and count
+    const [tyres, total] = await Promise.all([
+      Tyre.find(filter).sort({ _id: 1 }).skip(skip > 0 ? skip : 0).limit(resultLimit > 0 ? resultLimit : 0).exec(),
+      Tyre.countDocuments(filter)
+    ]);
 
     res.json({
       tyres,
@@ -64,10 +67,17 @@ app.get("/api/tyres", async (req, res) => {
   }
 });
 
-// ✅ Get unique brands
+// ✅ Get unique brands with caching
 app.get("/api/brands", async (req, res) => {
   try {
+    const now = Date.now();
+    if (brandCache && (now - lastCacheUpdate < CACHE_DURATION)) {
+      return res.json(brandCache);
+    }
+
     const brands = await Tyre.distinct("brand");
+    brandCache = brands;
+    lastCacheUpdate = now;
     res.json(brands);
   } catch (err) {
     res.status(500).json({ error: err.message });
