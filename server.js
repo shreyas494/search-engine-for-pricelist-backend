@@ -14,6 +14,11 @@ const VERSION = "6.3.0-TABLE-PRO";
 
 console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 
+// ✅ Health Check (Keep-Alive)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "active", uptime: process.uptime() });
+});
+
 // ✅ Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || "*", // Allow all for now, restrict in prod

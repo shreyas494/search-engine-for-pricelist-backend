@@ -1,0 +1,12 @@
+[
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1400 DG","va":1400,"voltage":"12V","dp":5729,"mrp":10590,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1550 DG","va":1550,"voltage":"12V","dp":6643,"mrp":10690,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1750 DG","va":1750,"voltage":"12V","dp":8389,"mrp":14690,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 2000 DG","va":2000,"voltage":"24V","dp":7160,"mrp":13190,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 2350 DG","va":2350,"voltage":"24V","dp":9518,"mrp":17190,"type":"Advanced Digital"},
+
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1400 SW","va":1400,"voltage":"12V","dp":6447,"mrp":11290,"type":"True Sinewave"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1550 SW","va":1550,"voltage":"12V","dp":7580,"mrp":12090,"type":"True Sinewave"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 1750 SW","va":1750,"voltage":"12V","dp":9179,"mrp":15190,"type":"True Sinewave"},
+  {"brand":"Microtek 12V and 24V","model":"HEAVYDUTY VTURBO NEW 2000 SW","va":2000,"voltage":"24V","dp":7948,"mrp":13690,"type":"True Sinewave"}
+]

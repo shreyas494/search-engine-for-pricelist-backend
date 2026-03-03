@@ -1,0 +1,9 @@
+[
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 825 DG","va":825,"voltage":"12V","dp":4460,"mrp":6890,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 1025 DG","va":1025,"voltage":"12V","dp":5044,"mrp":9490,"type":"Advanced Digital"},
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 1225 DG","va":1225,"voltage":"12V","dp":5702,"mrp":10490,"type":"Advanced Digital"},
+
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 825 SW","va":825,"voltage":"12V","dp":4899,"mrp":8590,"type":"Pure Sinewave"},
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 1025 SW","va":1025,"voltage":"12V","dp":5629,"mrp":10690,"type":"Pure Sinewave"},
+  {"brand":"Microtek 12V","model":"ENERGY SAVER NEW 1225 SW","va":1225,"voltage":"12V","dp":6437,"mrp":10890,"type":"Pure Sinewave"}
+]
