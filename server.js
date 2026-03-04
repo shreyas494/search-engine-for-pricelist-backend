@@ -55,11 +55,13 @@ app.get("/api/tyres", async (req, res) => {
     if (brand) filter.brand = brand;
     if (search) filter.model = { $regex: search, $options: "i" };
 
+    console.time("fetch-tyres");
     // Parallelize find and count
     const [tyres, total] = await Promise.all([
       Tyre.find(filter).sort({ _id: 1 }).skip(skip > 0 ? skip : 0).limit(resultLimit > 0 ? resultLimit : 0).exec(),
       Tyre.countDocuments(filter)
     ]);
+    console.timeEnd("fetch-tyres");
 
     res.json({
       tyres,
