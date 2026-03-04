@@ -1,0 +1,17 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *' # Every 14 minutes
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend
+        run: |
+          # Replace with your actual Render URL if different
+          URL="https://search-engine-backend.onrender.com/api/health"
+          echo "Pinging $URL..."
+          curl -s --fail $URL || echo "Ping failed (server might be starting up)"

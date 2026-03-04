@@ -49,11 +49,13 @@ Your application has been refactored for optimal performance and split deploymen
 
 Render's Free Tier puts the server to sleep after 15 minutes of inactivity. To keep your search engine fast 24/7, follow these steps:
 
-1.  **Use a Ping Service**: Go to [cron-job.org](https://cron-job.org/) (free).
-2.  **Create a New Cronjob**:
-    -   **URL**: `https://your-backend-url.onrender.com/api/health`
-    -   **Schedule**: Every 10 minutes.
-3.  **Result**: This "pokes" the server constantly so it never goes to sleep. Your site will load data instantly every time.
+1.  **GitHub Actions (Automatic)**: I have added a `.github/workflows/keep-alive.yml` file. This is a built-in "cron job" that runs every 14 minutes on GitHub's servers to ping your backend.
+2.  **How to Activate**:
+    -   Simply push the code to GitHub.
+    -   Go to the **Actions** tab in your GitHub repository.
+    -   You might need to click "Enable Workflows" if GitHub has disabled them (common in new repos).
+3.  **Important**: If your backend URL is DIFFERENT from `https://search-engine-backend.onrender.com`, edit the URL in `.github/workflows/keep-alive.yml`.
+4.  **Result**: GitHub will constantly "poke" the server so it never goes to sleep.
 
 ## 🚀 Alternatives (Non-Sleep Platforms)
 
