@@ -4,14 +4,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import compression from "compression";
-
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-const VERSION = "6.3.0-TABLE-PRO";
-
 console.log(`🚀 Backend Starting - Version: ${VERSION}`);
 
 // ✅ Health Check (Keep-Alive)
