@@ -40,7 +40,7 @@ function App() {
   // ✅ Manual brand refresh (bypass cache)
   const handleRefreshBrands = () => {
     setRefreshingBrands(true);
-    fetch(`${API_URL}/api/brands`)
+    fetch(`${API_URL}/api/brands?refresh=true`)
       .then((res) => res.json())
       .then((data) => {
         setBrands(data);
@@ -132,26 +132,8 @@ function App() {
             className="w-full p-2 pr-10 border rounded-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search by model"
           />
-          {/* Toggle autocomplete suggestions */}
-          <button
-            className="absolute left-3 top-2.5 text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={() => {
-              setShowAutocomplete((s) => !s);
-              if (showAutocomplete) setSuggestions([]);
-            }}
-            title={showAutocomplete ? "Hide suggestions" : "Show suggestions"}
-          >
-            {showAutocomplete ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 3C5 3 1.1 6.1 0 10c1.1 3.9 5 7 10 7s8.9-3.1 10-7c-1.1-3.9-5-7-10-7zM10 14a4 4 0 100-8 4 4 0 000 8z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2.94 2.94a.75.75 0 10-1.06 1.06l14.12 14.12a.75.75 0 101.06-1.06L2.94 2.94zM10 4c4.97 0 8.7 3.3 9.76 6-.5 1.63-1.96 3.26-3.8 4.45L7.55 6.29C8.74 5.17 9.35 4.57 10 4zM4.24 6.06C3.08 7.79 2.47 9.65 2 11c1.06 2.7 4.79 6 9.76 6 .6 0 1.2-.06 1.79-.18L4.24 6.06z" />
-              </svg>
-            )}
-          </button>
           {searchTerm && (
             <button
               className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
@@ -178,9 +160,9 @@ function App() {
           )}
         </div>
 
-        <div className="flex gap-2 md:w-1/4">
+        <div className="flex gap-2 w-full md:w-1/2">
           <select
-            className="flex-1 p-2 border rounded-lg"
+            className="flex-grow p-2 border rounded-lg min-w-0"
             value={brandFilter}
             onChange={(e) => setBrandFilter(e.target.value)}
           >
@@ -194,10 +176,40 @@ function App() {
           <button
             onClick={handleRefreshBrands}
             disabled={refreshingBrands}
-            className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
             title="Refresh brand list (bypass cache)"
           >
             {refreshingBrands ? "🔄" : "🔄"}
+          </button>
+          <button
+            onClick={() => {
+              setShowAutocomplete((s) => {
+                const next = !s;
+                if (!next) setSuggestions([]);
+                return next;
+              });
+            }}
+            className={`px-3 py-2 rounded-lg border flex-shrink-0 flex items-center justify-center gap-1 ${
+              showAutocomplete ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+            }`}
+            title={showAutocomplete ? "Hide suggestions" : "Show suggestions"}
+            aria-pressed={!showAutocomplete}
+          >
+            {showAutocomplete ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 3C5 3 1.1 6.1 0 10c1.1 3.9 5 7 10 7s8.9-3.1 10-7c-1.1-3.9-5-7-10-7zM10 14a4 4 0 100-8 4 4 0 000 8z" />
+                </svg>
+                <span className="hidden sm:inline">Suggestions On</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.94 2.94a.75.75 0 10-1.06 1.06l14.12 14.12a.75.75 0 101.06-1.06L2.94 2.94zM10 4c4.97 0 8.7 3.3 9.76 6-.5 1.63-1.96 3.26-3.8 4.45L7.55 6.29C8.74 5.17 9.35 4.57 10 4zM4.24 6.06C3.08 7.79 2.47 9.65 2 11c1.06 2.7 4.79 6 9.76 6 .6 0 1.2-.06 1.79-.18L4.24 6.06z" />
+                </svg>
+                <span className="hidden sm:inline">Suggestions Off</span>
+              </>
+            )}
           </button>
         </div>
       </div>

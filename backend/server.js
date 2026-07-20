@@ -107,11 +107,12 @@ app.get("/api/tyres", async (req, res) => {
   }
 });
 
-// ✅ Get unique brands with caching
+// ✅ Get unique brands with caching (supports ?refresh=true to bypass cache)
 app.get("/api/brands", async (req, res) => {
   try {
     const now = Date.now();
-    if (brandCache && (now - lastCacheUpdate < CACHE_DURATION)) {
+    const forceRefresh = req.query.refresh === "true";
+    if (!forceRefresh && brandCache && (now - lastCacheUpdate < CACHE_DURATION)) {
       return res.json(brandCache);
     }
 
