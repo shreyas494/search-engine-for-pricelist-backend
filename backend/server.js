@@ -48,7 +48,7 @@ app.use(cors({
     if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
-  methods: ["GET", "POST", "OPTIONS"],
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
   credentials: true
 }));
 app.use(compression());
@@ -120,6 +120,32 @@ app.get("/api/brands", async (req, res) => {
     brandCache = brands;
     lastCacheUpdate = now;
     res.json(brands);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Delete all data for a specific brand
+app.delete("/api/brands/:brand", async (req, res) => {
+  try {
+    const brandName = req.params.brand;
+    if (!brandName) {
+      return res.status(400).json({ error: "Brand parameter is required" });
+    }
+
+    const result = await Tyre.deleteMany({ brand: brandName });
+
+    // Invalidate brand cache
+    brandCache = null;
+    lastCacheUpdate = 0;
+
+    console.log(`🗑️ Deleted ${result.deletedCount} items for brand '${brandName}'`);
+
+    res.json({
+      message: `Successfully deleted all data for brand '${brandName}'`,
+      deletedCount: result.deletedCount,
+      brand: brandName
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

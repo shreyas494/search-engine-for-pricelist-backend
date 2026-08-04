@@ -16,6 +16,7 @@ function App() {
   const [showAutocomplete, setShowAutocomplete] = useState(true);
   const [fields, setFields] = useState([]); // dynamically detected fields
   const [refreshingBrands, setRefreshingBrands] = useState(false);
+  const [deletingBrand, setDeletingBrand] = useState(null);
 
 
   // ✅ Debounce Search Term
@@ -51,6 +52,42 @@ function App() {
         alert("Error refreshing brands ❌");
       })
       .finally(() => setRefreshingBrands(false));
+  };
+
+  // ✅ Delete all data for a specific brand
+  const handleDeleteBrand = (brandToDelete) => {
+    if (!brandToDelete) return;
+    const confirmed = window.confirm(
+      `Are you sure you want to delete all data for brand "${brandToDelete}"?\n\nThis will permanently delete all product records for this brand.`
+    );
+    if (!confirmed) return;
+
+    setDeletingBrand(brandToDelete);
+    fetch(`${API_URL}/api/brands/${encodeURIComponent(brandToDelete)}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to delete brand data");
+        return res.json();
+      })
+      .then((data) => {
+        alert(`✅ ${data.message} (${data.deletedCount} items deleted)`);
+        if (brandFilter === brandToDelete) {
+          setBrandFilter("");
+        }
+        // Refresh brand list bypassing cache
+        return fetch(`${API_URL}/api/brands?refresh=true`);
+      })
+      .then((res) => res.json())
+      .then((updatedBrands) => {
+        setBrands(updatedBrands || []);
+        setPage(1);
+      })
+      .catch((err) => {
+        console.error("Error deleting brand:", err);
+        alert(`❌ Error deleting brand data: ${err.message}`);
+      })
+      .finally(() => setDeletingBrand(null));
   };
 
   // ✅ Fetch tyres when brand/search/page changes
@@ -212,6 +249,69 @@ function App() {
             )}
           </button>
         </div>
+      </div>
+
+      {/* 🏷️ Available Brands & Management */}
+      <div className="bg-white p-4 shadow rounded-lg mb-6 border border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <h2 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+            <span>🏷️</span> Available Brands ({brands.length})
+          </h2>
+          <span className="text-xs text-gray-500">
+            Click a brand to filter. Click 🗑️ to delete all data for that brand.
+          </span>
+        </div>
+
+        {brands.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {brands.map((brand) => (
+              <div
+                key={brand}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                  brandFilter === brand
+                    ? "bg-blue-50 border-blue-500 text-blue-700 font-semibold shadow-sm"
+                    : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <button
+                  onClick={() => setBrandFilter(brandFilter === brand ? "" : brand)}
+                  className="hover:underline text-left focus:outline-none"
+                  title={brandFilter === brand ? "Click to clear filter" : `Filter by ${brand}`}
+                >
+                  {brand}
+                </button>
+                <button
+                  onClick={() => handleDeleteBrand(brand)}
+                  disabled={deletingBrand === brand}
+                  className="ml-1 text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded transition-colors disabled:opacity-50 flex items-center justify-center"
+                  title={`Delete all data for brand "${brand}"`}
+                  aria-label={`Delete all data for brand ${brand}`}
+                >
+                  {deletingBrand === brand ? (
+                    <span className="text-xs animate-pulse text-red-600 font-bold">...</span>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 italic">No brands available in inventory.</p>
+        )}
       </div>
 
       {/* 📋 Tyre Table */}
