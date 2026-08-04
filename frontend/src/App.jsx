@@ -17,6 +17,28 @@ function App() {
   const [fields, setFields] = useState([]); // dynamically detected fields
   const [refreshingBrands, setRefreshingBrands] = useState(false);
   const [deletingBrand, setDeletingBrand] = useState(null);
+  const [insertingTestData, setInsertingTestData] = useState(false);
+
+  // ✅ Add test brand data on demand
+  const handleAddTestData = () => {
+    setInsertingTestData(true);
+    fetch(`${API_URL}/api/seed-test-data`, { method: "POST" })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(`✅ ${data.message} (${data.insertedCount} test products added)`);
+        return fetch(`${API_URL}/api/brands?refresh=true`);
+      })
+      .then((res) => res.json())
+      .then((updatedBrands) => {
+        setBrands(updatedBrands || []);
+        setPage(1);
+      })
+      .catch((err) => {
+        console.error("Error adding test data:", err);
+        alert(`❌ Error adding test data: ${err.message}`);
+      })
+      .finally(() => setInsertingTestData(false));
+  };
 
 
   // ✅ Debounce Search Term
@@ -263,14 +285,24 @@ function App() {
               Click a brand to filter inventory. Use the red delete button in front of each brand to remove all its data.
             </p>
           </div>
-          {brandFilter && (
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <button
-              onClick={() => setBrandFilter("")}
-              className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium self-start sm:self-auto"
+              onClick={handleAddTestData}
+              disabled={insertingTestData}
+              className="text-xs text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-300 transition-colors font-medium flex items-center gap-1 disabled:opacity-50"
+              title="Insert sample test brands & items into inventory"
             >
-              Clear Filter ({brandFilter})
+              {insertingTestData ? "⏳ Adding..." : "➕ Add Test Brands"}
             </button>
-          )}
+            {brandFilter && (
+              <button
+                onClick={() => setBrandFilter("")}
+                className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium"
+              >
+                Clear Filter ({brandFilter})
+              </button>
+            )}
+          </div>
         </div>
 
         {brands.length > 0 ? (

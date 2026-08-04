@@ -151,6 +151,25 @@ app.delete("/api/brands/:brand", async (req, res) => {
   }
 });
 
+// ✅ Seed test brand data for testing deletion
+app.post("/api/seed-test-data", async (req, res) => {
+  try {
+    const testItems = [
+      { brand: "TEST_BRAND_DEMO", model: "Demo Radial 195/65 R15", type: "Tubeless", dp: 3500, mrp: 4200 },
+      { brand: "TEST_BRAND_DEMO", model: "Demo EcoGrip 185/70 R14", type: "Tubeless", dp: 2800, mrp: 3400 },
+      { brand: "TEST_BRAND_DEMO", model: "Demo UltraSport 225/45 R17", type: "Performance", dp: 6200, mrp: 7500 },
+      { brand: "SAMPLE_TYRES_INC", model: "Sample CityRunner 165/80 R13", type: "Tube Type", dp: 2100, mrp: 2600 },
+      { brand: "SAMPLE_TYRES_INC", model: "Sample AllTerrain 235/70 R16", type: "Tubeless", dp: 5400, mrp: 6500 }
+    ];
+    const inserted = await Tyre.insertMany(testItems);
+    brandCache = null;
+    lastCacheUpdate = 0;
+    res.json({ message: "Test brand data inserted successfully!", insertedCount: inserted.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Lightweight cron endpoint to keep the service awake.
 // External pingers (cron, UptimeRobot) can call this URL periodically.
 app.get("/cron/ping", (req, res) => {
