@@ -252,65 +252,89 @@ function App() {
       </div>
 
       {/* 🏷️ Available Brands & Management */}
-      <div className="bg-white p-4 shadow rounded-lg mb-6 border border-gray-100">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <h2 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-            <span>🏷️</span> Available Brands ({brands.length})
-          </h2>
-          <span className="text-xs text-gray-500">
-            Click a brand to filter. Click 🗑️ to delete all data for that brand.
-          </span>
+      <div className="bg-white p-5 shadow-sm rounded-xl mb-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
+          <div>
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <span className="p-1 bg-blue-100 text-blue-600 rounded-md text-sm">🏷️</span> 
+              Available Brands ({brands.length})
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Click a brand to filter inventory. Use the red delete button in front of each brand to remove all its data.
+            </p>
+          </div>
+          {brandFilter && (
+            <button
+              onClick={() => setBrandFilter("")}
+              className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium self-start sm:self-auto"
+            >
+              Clear Filter ({brandFilter})
+            </button>
+          )}
         </div>
 
         {brands.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {brands.map((brand) => (
-              <div
-                key={brand}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
-                  brandFilter === brand
-                    ? "bg-blue-50 border-blue-500 text-blue-700 font-semibold shadow-sm"
-                    : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <button
-                  onClick={() => setBrandFilter(brandFilter === brand ? "" : brand)}
-                  className="hover:underline text-left focus:outline-none"
-                  title={brandFilter === brand ? "Click to clear filter" : `Filter by ${brand}`}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {brands.map((brand) => {
+              const isSelected = brandFilter === brand;
+              const isDeleting = deletingBrand === brand;
+
+              return (
+                <div
+                  key={brand}
+                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                    isSelected
+                      ? "bg-blue-50/80 border-blue-400 ring-2 ring-blue-400/20 shadow-sm"
+                      : "bg-gray-50/70 border-gray-200 hover:border-gray-300 hover:bg-gray-100/80"
+                  }`}
                 >
-                  {brand}
-                </button>
-                <button
-                  onClick={() => handleDeleteBrand(brand)}
-                  disabled={deletingBrand === brand}
-                  className="ml-1 text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded transition-colors disabled:opacity-50 flex items-center justify-center"
-                  title={`Delete all data for brand "${brand}"`}
-                  aria-label={`Delete all data for brand ${brand}`}
-                >
-                  {deletingBrand === brand ? (
-                    <span className="text-xs animate-pulse text-red-600 font-bold">...</span>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            ))}
+                  <button
+                    onClick={() => setBrandFilter(isSelected ? "" : brand)}
+                    className="flex items-center gap-2 text-left focus:outline-none flex-grow min-w-0 mr-2 group"
+                    title={isSelected ? "Click to clear filter" : `Filter inventory by ${brand}`}
+                  >
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? "bg-blue-500" : "bg-gray-400 group-hover:bg-gray-600"}`} />
+                    <span className={`truncate font-semibold text-sm ${isSelected ? "text-blue-900" : "text-gray-800"}`}>
+                      {brand}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteBrand(brand)}
+                    disabled={isDeleting}
+                    className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border border-red-200 hover:border-red-300 rounded-lg shadow-2xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={`Permanently delete all data for brand "${brand}"`}
+                  >
+                    {isDeleting ? (
+                      <span className="animate-pulse text-red-600 font-bold">Deleting...</span>
+                    ) : (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3.5 w-3.5 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        <span>Delete</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="text-sm text-gray-500 italic">No brands available in inventory.</p>
+          <div className="text-center py-6 text-gray-500 italic bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            No brands available in inventory.
+          </div>
         )}
       </div>
 
