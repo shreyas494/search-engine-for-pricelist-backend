@@ -187,9 +187,7 @@ function App() {
   const copyTyreDetails = (tyre, e) => {
     if (e) e.stopPropagation();
 
-    const keys = fields.length > 0 
-      ? fields 
-      : Object.keys(tyre).filter((f) => f !== "_id" && f !== "__v");
+    const keys = Object.keys(tyre).filter((f) => f !== "_id" && f !== "__v");
 
     const text = keys
       .map((f) => `${f.charAt(0).toUpperCase() + f.slice(1)}: ${tyre[f] ?? "-"}`)
@@ -200,38 +198,27 @@ function App() {
     });
   };
 
-  // Copy full customer quote for all pinned products
+  // Copy full customer quote for all pinned products (Vertical format without total DP/MRP)
   const copyFullCustomerQuote = () => {
     if (pinnedItems.length === 0) return;
 
     let quoteText = `📦 PRODUCT PRICE QUOTE (${pinnedItems.length} Items)\n`;
-    quoteText += `===========================================\n`;
-
-    let totalMRP = 0;
-    let totalDP = 0;
+    quoteText += `===========================================\n\n`;
 
     pinnedItems.forEach((item, index) => {
-      const brand = item.brand || "Brand";
-      const model = item.model || "Model";
-      const type = item.type ? ` | Type: ${item.type}` : "";
-      const mrp = typeof item.mrp === "number" ? item.mrp : null;
-      const dp = typeof item.dp === "number" ? item.dp : null;
-
-      if (mrp) totalMRP += mrp;
-      if (dp) totalDP += dp;
-
-      quoteText += `${index + 1}. [${brand.toUpperCase()}] ${model}${type}\n`;
-      if (dp !== null) quoteText += `   • Dealer Price (DP): ₹${dp.toLocaleString("en-IN")}\n`;
-      if (mrp !== null) quoteText += `   • MRP: ₹${mrp.toLocaleString("en-IN")}\n`;
-      quoteText += `-------------------------------------------\n`;
+      const keys = Object.keys(item).filter((f) => f !== "_id" && f !== "__v");
+      
+      quoteText += `${index + 1}. PRODUCT DETAILS:\n`;
+      keys.forEach((key) => {
+        const val = item[key];
+        const label = key.charAt(0).toUpperCase() + key.slice(1);
+        const formattedVal = (key === "dp" || key === "mrp") && typeof val === "number" 
+          ? `₹${val.toLocaleString("en-IN")}` 
+          : (val ?? "-");
+        quoteText += `   • ${label}: ${formattedVal}\n`;
+      });
+      quoteText += `-------------------------------------------\n\n`;
     });
-
-    if (totalDP > 0 || totalMRP > 0) {
-      quoteText += `📊 SUMMARY:\n`;
-      if (totalDP > 0) quoteText += `Total DP: ₹${totalDP.toLocaleString("en-IN")}\n`;
-      if (totalMRP > 0) quoteText += `Total MRP: ₹${totalMRP.toLocaleString("en-IN")}\n`;
-      quoteText += `===========================================\n`;
-    }
 
     quoteText += `Generated on ${new Date().toLocaleDateString()}`;
 
@@ -251,10 +238,6 @@ function App() {
     setPage(1);
     setSuggestions([]);
   };
-
-  // Calculate pinned totals
-  const totalPinnedDP = pinnedItems.reduce((acc, curr) => acc + (typeof curr.dp === "number" ? curr.dp : 0), 0);
-  const totalPinnedMRP = pinnedItems.reduce((acc, curr) => acc + (typeof curr.mrp === "number" ? curr.mrp : 0), 0);
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen pb-28 font-sans text-gray-800">
@@ -644,13 +627,13 @@ function App() {
         )}
       </div>
 
-      {/* 🪟 Full Customer Quote Drawer (Modal) */}
+      {/* 🪟 Full Customer Quote Drawer (Modal - Mobile Optimized Vertical View) */}
       {isDrawerOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full max-w-4xl max-h-[85vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in fade-in slide-in-from-bottom duration-200">
+          <div className="bg-white w-full max-w-3xl max-h-[90vh] sm:max-h-[85vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in fade-in slide-in-from-bottom duration-200">
             
             {/* Drawer Header */}
-            <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
+            <div className="p-4 bg-gray-900 text-white flex items-center justify-between flex-shrink-0">
               <h2 className="text-sm sm:text-base font-bold flex items-center gap-2">
                 <span>📌</span> Customer Quote Tray ({pinnedItems.length} Products)
               </h2>
@@ -664,90 +647,109 @@ function App() {
               </button>
             </div>
 
-            {/* Drawer Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto flex-grow bg-gray-50">
+            {/* Drawer Body (Vertical Stack Scrollable View) */}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-grow bg-gray-50/70">
               {pinnedItems.length > 0 ? (
                 <div>
-                  {/* Quote Toolbar Summary */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 gap-3">
-                    <div>
-                      <h3 className="font-bold text-amber-900 text-sm sm:text-base">
-                        Quote Summary ({pinnedItems.length} Products)
-                      </h3>
-                      <div className="text-xs text-amber-800 mt-0.5 flex flex-wrap gap-x-4">
-                        {totalPinnedDP > 0 && (
-                          <span>Total Dealer Price (DP): <strong className="font-bold">₹{totalPinnedDP.toLocaleString("en-IN")}</strong></span>
-                        )}
-                        {totalPinnedMRP > 0 && (
-                          <span>Total MRP: <strong className="font-bold">₹{totalPinnedMRP.toLocaleString("en-IN")}</strong></span>
-                        )}
-                      </div>
-                    </div>
+                  {/* Quote Toolbar Summary (Without Total DP / Total MRP) */}
+                  <div className="flex flex-row justify-between items-center bg-amber-50 p-3.5 rounded-xl border border-amber-200 mb-4 gap-3">
+                    <h3 className="font-bold text-amber-900 text-xs sm:text-sm">
+                      Quote Items ({pinnedItems.length})
+                    </h3>
 
                     <div className="flex gap-2">
                       <button
                         onClick={copyFullCustomerQuote}
-                        className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center gap-1.5"
+                        className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
                       >
-                        <span>📋</span> Copy Full Quote Text
+                        <span>📋</span> Copy Quote
                       </button>
 
                       <button
                         onClick={() => setPinnedItems([])}
-                        className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                        className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
                       >
                         Clear All
                       </button>
                     </div>
                   </div>
 
-                  {/* Pinned Products List */}
-                  <div className="space-y-3">
-                    {pinnedItems.map((item, index) => (
-                      <div
-                        key={item._id}
-                        className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-center justify-between gap-3"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-gray-900 text-sm truncate">
-                                {item.model || "Product"}
+                  {/* Pinned Products Vertical Cards Stack */}
+                  <div className="space-y-4">
+                    {pinnedItems.map((item, index) => {
+                      const itemKeys = Object.keys(item).filter(
+                        (key) => key !== "_id" && key !== "__v"
+                      );
+
+                      return (
+                        <div
+                          key={item._id}
+                          className="bg-white p-4 rounded-xl border border-amber-200/90 shadow-xs transition-all hover:border-amber-300"
+                        >
+                          {/* Card Top Title & Action Row */}
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="w-6 h-6 rounded-full bg-amber-500 text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+                                {index + 1}
                               </span>
-                              {item.brand && (
-                                <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
-                                  {item.brand}
-                                </span>
-                              )}
+                              <span className="font-bold text-gray-900 text-sm sm:text-base truncate">
+                                {item.model || item.brand || `Product ${index + 1}`}
+                              </span>
                             </div>
-                            <div className="text-xs text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
-                              {item.type && <span>Type: {item.type}</span>}
-                              {item.dp && <span className="font-semibold text-gray-800">DP: ₹{item.dp.toLocaleString("en-IN")}</span>}
-                              {item.mrp && <span>MRP: ₹{item.mrp.toLocaleString("en-IN")}</span>}
+
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <button
+                                onClick={(e) => copyTyreDetails(item, e)}
+                                className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition-colors shadow-2xs"
+                              >
+                                Copy
+                              </button>
+                              <button
+                                onClick={(e) => togglePin(item, e)}
+                                className="px-2.5 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-md font-semibold transition-colors border border-red-200"
+                                title="Remove from quote"
+                              >
+                                Remove ❌
+                              </button>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <button
-                            onClick={(e) => copyTyreDetails(item, e)}
-                            className="px-2.5 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
-                          >
-                            Copy
-                          </button>
-                          <button
-                            onClick={(e) => togglePin(item, e)}
-                            className="px-2.5 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-semibold transition-colors"
-                            title="Remove from quote"
-                          >
-                            Remove ❌
-                          </button>
+                          {/* Vertical Column Fields List */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+                            {itemKeys.map((key) => {
+                              const val = item[key];
+                              const label = key.charAt(0).toUpperCase() + key.slice(1);
+
+                              return (
+                                <div
+                                  key={key}
+                                  className="flex items-center justify-between p-2 rounded-lg bg-gray-50/90 border border-gray-100"
+                                >
+                                  <span className="font-semibold text-gray-500 capitalize">{label}:</span>
+                                  <span className="font-bold text-gray-900 text-right ml-2 break-all">
+                                    {key === "dp" || key === "mrp" ? (
+                                      typeof val === "number" ? (
+                                        <span className="text-gray-900 font-black">
+                                          ₹{val.toLocaleString("en-IN")}
+                                        </span>
+                                      ) : (
+                                        val || "-"
+                                      )
+                                    ) : key === "brand" ? (
+                                      <span className="px-2 py-0.5 rounded text-xs bg-amber-50 text-amber-900 border border-amber-200">
+                                        {val}
+                                      </span>
+                                    ) : (
+                                      val || "-"
+                                    )}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
