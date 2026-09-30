@@ -17,7 +17,7 @@ function App() {
   const [refreshingBrands, setRefreshingBrands] = useState(false);
   const [deletingBrand, setDeletingBrand] = useState(null);
 
-  // 📌 Pinned items (Customer Quote Tray) & 🕒 Recently Viewed History
+  // 📌 Pinned items (Customer Quote Tray)
   const [pinnedItems, setPinnedItems] = useState(() => {
     try {
       const saved = localStorage.getItem("pinned_tyres");
@@ -27,17 +27,7 @@ function App() {
     }
   });
 
-  const [recentlyViewed, setRecentlyViewed] = useState(() => {
-    try {
-      const saved = localStorage.getItem("recent_tyres");
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState("pinned"); // "pinned" | "history"
   const [toastMessage, setToastMessage] = useState("");
 
   // Toast notification timer
@@ -57,24 +47,6 @@ function App() {
     }
   }, [pinnedItems]);
 
-  // Save recently viewed to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("recent_tyres", JSON.stringify(recentlyViewed));
-    } catch (e) {
-      console.error("Error saving recent items:", e);
-    }
-  }, [recentlyViewed]);
-
-  // Add product to Recently Viewed (max 15 items, deduplicated)
-  const addToRecent = (tyre) => {
-    if (!tyre || !tyre._id) return;
-    setRecentlyViewed((prev) => {
-      const filtered = prev.filter((item) => item._id !== tyre._id);
-      return [tyre, ...filtered].slice(0, 15);
-    });
-  };
-
   // Toggle Pin item in Quote Tray
   const togglePin = (tyre, e) => {
     if (e) e.stopPropagation();
@@ -87,7 +59,6 @@ function App() {
         return prev.filter((item) => item._id !== tyre._id);
       } else {
         setToastMessage(`Pinned "${tyre.model || tyre.brand || 'Item'}" to quote 📌`);
-        addToRecent(tyre);
         return [tyre, ...prev];
       }
     });
@@ -215,7 +186,6 @@ function App() {
   // Copy details dynamically
   const copyTyreDetails = (tyre, e) => {
     if (e) e.stopPropagation();
-    addToRecent(tyre);
 
     const keys = fields.length > 0 
       ? fields 
@@ -277,7 +247,6 @@ function App() {
     } else {
       setSearchTerm(tyre.model || "");
       setDebouncedSearchTerm(tyre.model || "");
-      addToRecent(tyre);
     }
     setPage(1);
     setSuggestions([]);
@@ -309,40 +278,22 @@ function App() {
           </p>
         </div>
 
-        {/* 📌 Pinned & 🕒 History Quick Header Buttons */}
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => {
-              setDrawerTab("pinned");
-              setIsDrawerOpen(true);
-            }}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition-all shadow-sm ${
-              pinnedItems.length > 0
-                ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600 ring-2 ring-amber-400/30"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-            }`}
-          >
-            <span>📌 Pinned Quote</span>
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-              pinnedItems.length > 0 ? "bg-amber-700 text-white" : "bg-gray-200 text-gray-700"
-            }`}>
-              {pinnedItems.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setDrawerTab("history");
-              setIsDrawerOpen(true);
-            }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 transition-all shadow-sm"
-          >
-            <span>🕒 Recent Views</span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-700">
-              {recentlyViewed.length}
-            </span>
-          </button>
-        </div>
+        {/* 📌 Pinned Quote Header Button */}
+        <button
+          onClick={() => setIsDrawerOpen(true)}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all shadow-sm ${
+            pinnedItems.length > 0
+              ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600 ring-2 ring-amber-400/30"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+          }`}
+        >
+          <span>📌 View Pinned Quote</span>
+          <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+            pinnedItems.length > 0 ? "bg-amber-700 text-white" : "bg-gray-200 text-gray-700"
+          }`}>
+            {pinnedItems.length}
+          </span>
+        </button>
       </div>
 
       {/* 🔎 Search + Brand Filter */}
@@ -354,7 +305,7 @@ function App() {
             <input
               type="text"
               placeholder="Search by model, specs, size..."
-              className="w-full p-2.5 sm:p-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
+              className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               aria-label="Search by model"
@@ -417,7 +368,7 @@ function App() {
             <button
               onClick={handleRefreshBrands}
               disabled={refreshingBrands}
-              className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0 min-h-[40px] flex items-center justify-center transition-colors"
+              className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0 min-h-[40px] flex items-center justify-center transition-colors font-medium text-xs sm:text-sm"
               title="Refresh brand list (bypass cache)"
             >
               {refreshingBrands ? "🔄..." : "🔄 Refresh"}
@@ -466,60 +417,6 @@ function App() {
         )}
       </div>
 
-      {/* 🕒 Recently Viewed Quick Bar (Inline) */}
-      {recentlyViewed.length > 0 && (
-        <div className="bg-white p-3.5 rounded-xl shadow-xs border border-gray-200 mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🕒</span> Recently Viewed Products ({recentlyViewed.length})
-            </h2>
-            <button
-              onClick={() => setRecentlyViewed([])}
-              className="text-xs text-gray-400 hover:text-red-600 transition-colors"
-            >
-              Clear History
-            </button>
-          </div>
-
-          <div className="flex gap-2.5 overflow-x-auto pb-1 pt-1 scrollbar-thin">
-            {recentlyViewed.map((item) => {
-              const pinned = isPinned(item._id);
-
-              return (
-                <div
-                  key={item._id}
-                  onClick={() => handleItemClick(item)}
-                  className={`flex-shrink-0 flex items-center gap-2.5 px-3 py-2 rounded-lg border text-xs cursor-pointer transition-all ${
-                    pinned
-                      ? "bg-amber-50 border-amber-300 text-amber-900 shadow-2xs"
-                      : "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-semibold max-w-[140px] truncate">
-                      {item.model || "Product"}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      {item.brand || "Unknown Brand"} {item.dp ? `• ₹${item.dp}` : ""}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={(e) => togglePin(item, e)}
-                    className={`p-1 rounded-md transition-all ${
-                      pinned ? "bg-amber-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-amber-500 hover:text-white"
-                    }`}
-                    title={pinned ? "Unpin item" : "Pin item to quote"}
-                  >
-                    📌
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* 📋 Products Data Table */}
       <div className="overflow-x-auto bg-white shadow-xs rounded-xl border border-gray-200 mb-6">
         <table className="min-w-full border-collapse">
@@ -544,8 +441,7 @@ function App() {
                 return (
                   <tr
                     key={tyre._id}
-                    onClick={() => handleItemClick(tyre)}
-                    className={`transition-colors text-xs sm:text-sm cursor-pointer ${
+                    className={`transition-colors text-xs sm:text-sm ${
                       pinned
                         ? "bg-amber-50/70 hover:bg-amber-100/70"
                         : "hover:bg-blue-50/40"
@@ -722,33 +618,15 @@ function App() {
         )}
       </div>
 
-      {/* 📌 Floating Dock (Bottom Center) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-gray-900/90 text-white px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md border border-gray-700/80 flex items-center gap-3 sm:gap-4 transition-all">
+      {/* 📌 Floating Bottom Dock */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-gray-900/95 text-white px-5 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md border border-gray-700/80 flex items-center gap-4 transition-all">
         <button
-          onClick={() => {
-            setDrawerTab("pinned");
-            setIsDrawerOpen(true);
-          }}
-          className="flex items-center gap-2 text-xs sm:text-sm font-semibold hover:text-amber-400 transition-colors"
+          onClick={() => setIsDrawerOpen(true)}
+          className="flex items-center gap-2.5 text-xs sm:text-sm font-bold hover:text-amber-400 transition-colors"
         >
-          <span>📌 Quote Tray</span>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white">
+          <span>📌 Pinned Quote Tray</span>
+          <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white">
             {pinnedItems.length}
-          </span>
-        </button>
-
-        <span className="h-4 w-px bg-gray-700" />
-
-        <button
-          onClick={() => {
-            setDrawerTab("history");
-            setIsDrawerOpen(true);
-          }}
-          className="flex items-center gap-2 text-xs sm:text-sm font-semibold hover:text-blue-400 transition-colors"
-        >
-          <span>🕒 History</span>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-700 text-gray-200">
-            {recentlyViewed.length}
           </span>
         </button>
 
@@ -757,7 +635,7 @@ function App() {
             <span className="h-4 w-px bg-gray-700" />
             <button
               onClick={copyFullCustomerQuote}
-              className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+              className="bg-amber-500 hover:bg-amber-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
             >
               <span>📋</span>
               <span>Copy Quote</span>
@@ -766,36 +644,16 @@ function App() {
         )}
       </div>
 
-      {/* 🪟 Full Customer Quote & History Drawer (Modal) */}
+      {/* 🪟 Full Customer Quote Drawer (Modal) */}
       {isDrawerOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white w-full max-w-4xl max-h-[85vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in fade-in slide-in-from-bottom duration-200">
             
-            {/* Drawer Header & Tabs */}
+            {/* Drawer Header */}
             <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  onClick={() => setDrawerTab("pinned")}
-                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                    drawerTab === "pinned"
-                      ? "bg-amber-500 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
-                >
-                  📌 Customer Quote Tray ({pinnedItems.length})
-                </button>
-
-                <button
-                  onClick={() => setDrawerTab("history")}
-                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                    drawerTab === "history"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
-                >
-                  🕒 Recently Viewed ({recentlyViewed.length})
-                </button>
-              </div>
+              <h2 className="text-sm sm:text-base font-bold flex items-center gap-2">
+                <span>📌</span> Customer Quote Tray ({pinnedItems.length} Products)
+              </h2>
 
               <button
                 onClick={() => setIsDrawerOpen(false)}
@@ -808,182 +666,99 @@ function App() {
 
             {/* Drawer Body */}
             <div className="p-4 sm:p-6 overflow-y-auto flex-grow bg-gray-50">
-              
-              {/* TAB 1: PINNED QUOTE TRAY */}
-              {drawerTab === "pinned" && (
+              {pinnedItems.length > 0 ? (
                 <div>
-                  {pinnedItems.length > 0 ? (
+                  {/* Quote Toolbar Summary */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 gap-3">
                     <div>
-                      {/* Quote Toolbar Summary */}
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 gap-3">
-                        <div>
-                          <h3 className="font-bold text-amber-900 text-sm sm:text-base">
-                            Quote Summary ({pinnedItems.length} Products)
-                          </h3>
-                          <div className="text-xs text-amber-800 mt-0.5 flex gap-3">
-                            {totalPinnedDP > 0 && (
-                              <span>Total Dealer Price (DP): <strong className="font-bold">₹{totalPinnedDP.toLocaleString("en-IN")}</strong></span>
-                            )}
-                            {totalPinnedMRP > 0 && (
-                              <span>Total MRP: <strong className="font-bold">₹{totalPinnedMRP.toLocaleString("en-IN")}</strong></span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <button
-                            onClick={copyFullCustomerQuote}
-                            className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center gap-1.5"
-                          >
-                            <span>📋</span> Copy Full Quote Text
-                          </button>
-
-                          <button
-                            onClick={() => setPinnedItems([])}
-                            className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
-                          >
-                            Clear All
-                          </button>
-                        </div>
+                      <h3 className="font-bold text-amber-900 text-sm sm:text-base">
+                        Quote Summary ({pinnedItems.length} Products)
+                      </h3>
+                      <div className="text-xs text-amber-800 mt-0.5 flex flex-wrap gap-x-4">
+                        {totalPinnedDP > 0 && (
+                          <span>Total Dealer Price (DP): <strong className="font-bold">₹{totalPinnedDP.toLocaleString("en-IN")}</strong></span>
+                        )}
+                        {totalPinnedMRP > 0 && (
+                          <span>Total MRP: <strong className="font-bold">₹{totalPinnedMRP.toLocaleString("en-IN")}</strong></span>
+                        )}
                       </div>
+                    </div>
 
-                      {/* Pinned Products List */}
-                      <div className="space-y-3">
-                        {pinnedItems.map((item, index) => (
-                          <div
-                            key={item._id}
-                            className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-center justify-between gap-3"
-                          >
-                            <div className="flex items-center gap-3 min-w-0">
-                              <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center flex-shrink-0">
-                                {index + 1}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={copyFullCustomerQuote}
+                        className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center gap-1.5"
+                      >
+                        <span>📋</span> Copy Full Quote Text
+                      </button>
+
+                      <button
+                        onClick={() => setPinnedItems([])}
+                        className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Pinned Products List */}
+                  <div className="space-y-3">
+                    {pinnedItems.map((item, index) => (
+                      <div
+                        key={item._id}
+                        className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-gray-900 text-sm truncate">
+                                {item.model || "Product"}
                               </span>
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-gray-900 text-sm truncate">
-                                    {item.model || "Product"}
-                                  </span>
-                                  {item.brand && (
-                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                                      {item.brand}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
-                                  {item.type && <span>Type: {item.type}</span>}
-                                  {item.dp && <span className="font-semibold text-gray-800">DP: ₹{item.dp.toLocaleString("en-IN")}</span>}
-                                  {item.mrp && <span>MRP: ₹{item.mrp.toLocaleString("en-IN")}</span>}
-                                </div>
-                              </div>
+                              {item.brand && (
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
+                                  {item.brand}
+                                </span>
+                              )}
                             </div>
-
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <button
-                                onClick={(e) => copyTyreDetails(item, e)}
-                                className="px-2.5 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
-                              >
-                                Copy
-                              </button>
-                              <button
-                                onClick={(e) => togglePin(item, e)}
-                                className="px-2.5 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-semibold transition-colors"
-                                title="Remove from quote"
-                              >
-                                Remove ❌
-                              </button>
+                            <div className="text-xs text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
+                              {item.type && <span>Type: {item.type}</span>}
+                              {item.dp && <span className="font-semibold text-gray-800">DP: ₹{item.dp.toLocaleString("en-IN")}</span>}
+                              {item.mrp && <span>MRP: ₹{item.mrp.toLocaleString("en-IN")}</span>}
                             </div>
                           </div>
-                        ))}
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            onClick={(e) => copyTyreDetails(item, e)}
+                            className="px-2.5 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                          >
+                            Copy
+                          </button>
+                          <button
+                            onClick={(e) => togglePin(item, e)}
+                            className="px-2.5 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-semibold transition-colors"
+                            title="Remove from quote"
+                          >
+                            Remove ❌
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300 p-6">
-                      <span className="text-3xl block mb-2">📌</span>
-                      <h4 className="font-bold text-gray-800 text-base mb-1">Your Quote Tray is Empty</h4>
-                      <p className="text-xs text-gray-500 max-w-md mx-auto">
-                        While searching products or switching across different brands, click the <strong className="text-amber-600">📌 Pin</strong> button on any product row to save it here for quick comparison and customer quotes!
-                      </p>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300 p-6">
+                  <span className="text-3xl block mb-2">📌</span>
+                  <h4 className="font-bold text-gray-800 text-base mb-1">Your Quote Tray is Empty</h4>
+                  <p className="text-xs text-gray-500 max-w-md mx-auto">
+                    While searching products or switching across different brands, click the <strong className="text-amber-600">📌 Pin</strong> button on any product row to save it here for quick comparison and customer quotes!
+                  </p>
                 </div>
               )}
-
-              {/* TAB 2: RECENTLY VIEWED HISTORY */}
-              {drawerTab === "history" && (
-                <div>
-                  {recentlyViewed.length > 0 ? (
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-gray-800 text-sm">
-                          Recently Viewed Products History ({recentlyViewed.length})
-                        </h3>
-                        <button
-                          onClick={() => setRecentlyViewed([])}
-                          className="text-xs text-red-600 hover:underline font-semibold"
-                        >
-                          Clear History
-                        </button>
-                      </div>
-
-                      <div className="space-y-2.5">
-                        {recentlyViewed.map((item) => {
-                          const pinned = isPinned(item._id);
-
-                          return (
-                            <div
-                              key={item._id}
-                              className="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between gap-3"
-                            >
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-gray-900 text-xs sm:text-sm truncate">
-                                    {item.model}
-                                  </span>
-                                  <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
-                                    {item.brand}
-                                  </span>
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5 flex gap-3">
-                                  {item.dp && <span className="font-medium text-gray-800">DP: ₹{item.dp}</span>}
-                                  {item.mrp && <span>MRP: ₹{item.mrp}</span>}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                <button
-                                  onClick={(e) => togglePin(item, e)}
-                                  className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
-                                    pinned
-                                      ? "bg-amber-500 text-white"
-                                      : "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300"
-                                  }`}
-                                >
-                                  {pinned ? "📌 Pinned" : "📌 Pin"}
-                                </button>
-                                <button
-                                  onClick={(e) => copyTyreDetails(item, e)}
-                                  className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                                >
-                                  Copy
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300 p-6">
-                      <span className="text-3xl block mb-2">🕒</span>
-                      <h4 className="font-bold text-gray-800 text-base mb-1">No History Yet</h4>
-                      <p className="text-xs text-gray-500 max-w-md mx-auto">
-                        Products you click on or copy will automatically be recorded here so you can easily review them later without having to change brand filters.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
             </div>
 
           </div>
