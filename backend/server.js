@@ -117,9 +117,10 @@ app.get("/api/brands", async (req, res) => {
     }
 
     const brands = await Tyre.distinct("brand");
-    brandCache = brands;
+    const validBrands = brands.filter((b) => typeof b === "string" && b.trim().length > 0).sort();
+    brandCache = validBrands;
     lastCacheUpdate = now;
-    res.json(brands);
+    res.json(validBrands);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
