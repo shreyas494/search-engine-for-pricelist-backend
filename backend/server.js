@@ -71,7 +71,6 @@ if (MONGO_URI) {
 }
 
 import Tyre from "./models/Tyre.js";
-import { chatHandler, invalidateCatalog } from "./chat.js";
 
 // ✅ Simple Brand Cache
 let brandCache = null;
@@ -113,7 +112,6 @@ app.get("/api/brands", async (req, res) => {
   try {
     const now = Date.now();
     const forceRefresh = req.query.refresh === "true";
-    if (forceRefresh) invalidateCatalog(); // new price list uploaded: chatbot sees it too
     if (!forceRefresh && brandCache && (now - lastCacheUpdate < CACHE_DURATION)) {
       return res.json(brandCache);
     }
@@ -141,7 +139,6 @@ app.delete("/api/brands/:brand", async (req, res) => {
     // Invalidate brand cache
     brandCache = null;
     lastCacheUpdate = 0;
-    invalidateCatalog();
 
     console.log(`🗑️ Deleted ${result.deletedCount} items for brand '${brandName}'`);
 
@@ -154,9 +151,6 @@ app.delete("/api/brands/:brand", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// ✅ Price-list chatbot (Claude), streams plain text
-app.post("/api/chat", chatHandler);
 
 // Lightweight cron endpoint to keep the service awake.
 // External pingers (cron, UptimeRobot) can call this URL periodically.
